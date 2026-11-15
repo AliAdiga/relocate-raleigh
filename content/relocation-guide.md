@@ -222,7 +222,7 @@ You get one, maybe two trips before you decide. Don't waste them.
 
 ### Before you arrive
 
-Pick three or four candidate addresses and run each through the [WCPSS base-school lookup](https://www.wcpss.net/domain/4783), the [DPS school locator](https://www.dpsnc.net), and the [CHCCS assignment maps](https://www.chccs.org) as applicable. During the trip, use [DriveNC](https://drivenc.gov) for real traffic data rather than trusting the GPS free-flow estimate.
+Pick three or four candidate addresses and run each through the [WCPSS base-school lookup](https://www.wcpss.net/enroll/base-schools), the [DPS school locator](https://www.dpsnc.net), and the [CHCCS assignment maps](https://www.chccs.org) as applicable. During the trip, use [DriveNC](https://drivenc.gov) for real traffic data rather than trusting the GPS free-flow estimate.
 
 ### The 3-day itinerary (for decisive families)
 
@@ -262,7 +262,7 @@ Most U.S. school districts work on a simple rule: you live in a zone, your kid g
 
 WCPSS layers three things on top of each other:
 
-1. **Base school by address.** The district's [address lookup tool](https://www.wcpss.net/domain/4783) tells you the assigned base school, calendar (traditional vs. year-round), and transportation eligibility for a given address.
+1. **Base school by address.** The district's [address lookup tool](https://www.wcpss.net/enroll/base-schools) tells you the assigned base school, calendar (traditional vs. year-round), and transportation eligibility for a given address.
 2. **Choice system.** Families can apply to magnet schools, year-round schools, and early colleges. Selection is *not* first-come, first-served. Selected students are automatically assigned; waitlisted students stay in the pool for their first choice. Magnet and year-round results are **not appealable**.
 3. **Annual enrollment planning.** WCPSS rebalances assignments every year to handle growth, new schools, and capped programs. Your neighbor's kid and yours could end up at different schools next year.
 
@@ -632,7 +632,7 @@ A printable one-page version of Chapter 3. Print it, bring it, fill it out in th
 ### Before the trip
 
 - [ ] Pick 3–4 candidate addresses (not just neighborhoods)
-- [ ] Run each address through the [WCPSS base-school lookup](https://www.wcpss.net/domain/4783), [DPS locator](https://www.dpsnc.net), or [CHCCS maps](https://www.chccs.org) as applicable
+- [ ] Run each address through the [WCPSS base-school lookup](https://www.wcpss.net/enroll/base-schools), [DPS locator](https://www.dpsnc.net), or [CHCCS maps](https://www.chccs.org) as applicable
 - [ ] Book flights into RDU
 - [ ] Reserve a rental car (not a rideshare week)
 - [ ] Book lodging near one of your candidate areas, not downtown (unless downtown is a candidate)

@@ -2,58 +2,50 @@
 
 import React, { useCallback } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
-import { COMMUTE_EMPLOYER_XY, type CommuteEmployer } from '@/data/commuteEmployers';
-import { formatK, type RankedNeighborhood } from '@/data/neighborhoods';
+import { COMMUTE_EMPLOYERS, type CommuteEmployer } from '@/data/commuteEmployers';
+import type { RankedNeighborhood } from '@/data/neighborhoods';
 import { SHARED_GOOGLE_MAPS_LOADER_ID } from '@/lib/googleMapsLoaderId';
-
-const PURPLE = '#3741B5';
-const triangleCenter = { lat: 35.82, lng: -78.78 };
 
 type Props = {
   employer: CommuteEmployer;
   neighborhoods: RankedNeighborhood[];
-  maxCommute: number;
+  isMatch: (n: RankedNeighborhood) => boolean;
   selectedId: string;
   onSelect: (id: string) => void;
 };
 
-/** Map view for the neighborhood explorer. Uses Google Maps when a key is set, otherwise a schematic. */
+/**
+ * Explorer map. Uses Google Maps when NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is set; otherwise an SVG map
+ * positioned by real latitude/longitude (equirectangular), with a scale bar. Not a road map.
+ */
 export default function CommuteMap(props: Props) {
   const hasMapsKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim());
-  return hasMapsKey ? <GoogleMapPanel {...props} /> : <SchematicMap {...props} />;
+  return hasMapsKey ? <GoogleMapPanel {...props} /> : <LatLngMap {...props} />;
 }
 
-function GoogleMapPanel({ employer, neighborhoods, maxCommute, selectedId, onSelect }: Props) {
+function GoogleMapPanel({ employer, neighborhoods, isMatch, selectedId, onSelect }: Props) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ?? '';
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: SHARED_GOOGLE_MAPS_LOADER_ID,
-    googleMapsApiKey: apiKey,
-  });
+  const { isLoaded, loadError } = useJsApiLoader({ id: SHARED_GOOGLE_MAPS_LOADER_ID, googleMapsApiKey: apiKey });
 
   const onLoad = useCallback(
     (map: google.maps.Map) => {
       const bounds = new google.maps.LatLngBounds();
       bounds.extend({ lat: employer.lat, lng: employer.lng });
       neighborhoods.forEach((n) => bounds.extend({ lat: n.lat, lng: n.lng }));
-      map.fitBounds(bounds, 48);
+      map.fitBounds(bounds, 40);
     },
     [employer, neighborhoods],
   );
 
-  if (loadError) {
-    return (
-      <MapMessage>
-        The map couldn&apos;t load. Check that the Maps JavaScript API is enabled for this key.
-      </MapMessage>
-    );
-  }
-  if (!isLoaded) return <MapMessage>Loading map…</MapMessage>;
+  if (loadError) return <LatLngMap employer={employer} neighborhoods={neighborhoods} isMatch={isMatch} selectedId={selectedId} onSelect={onSelect} />;
+  if (!isLoaded)
+    return <div className="flex aspect-[5/4] items-center justify-center rounded-[var(--radius-card)] bg-fog text-sm text-ink-soft">Loading map…</div>;
 
   return (
-    <div className="h-[360px] w-full overflow-hidden rounded-[var(--radius-card)]">
+    <div className="aspect-[5/4] w-full overflow-hidden rounded-[var(--radius-card)]">
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={triangleCenter}
+        center={{ lat: 35.82, lng: -78.78 }}
         zoom={10}
         onLoad={onLoad}
         options={{ streetViewControl: false, mapTypeControl: false, fullscreenControl: true, gestureHandling: 'cooperative' }}
@@ -61,30 +53,23 @@ function GoogleMapPanel({ employer, neighborhoods, maxCommute, selectedId, onSel
         <Marker
           position={{ lat: employer.lat, lng: employer.lng }}
           title={employer.name}
-          icon={{
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 9,
-            fillColor: '#1F1F1F',
-            fillOpacity: 1,
-            strokeColor: '#FEFEFF',
-            strokeWeight: 3,
-          }}
+          icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#1F1F1F', fillOpacity: 1, strokeColor: '#FEFEFF', strokeWeight: 3 }}
         />
         {neighborhoods.map((n) => {
-          const ok = n.commute <= maxCommute;
           const sel = n.id === selectedId;
+          const ok = isMatch(n);
           return (
             <Marker
               key={n.id}
               position={{ lat: n.lat, lng: n.lng }}
-              title={`${n.name}, about ${n.commute} min`}
+              title={n.name}
               onClick={() => onSelect(n.id)}
               icon={{
                 path: google.maps.SymbolPath.CIRCLE,
                 scale: sel ? 10 : 7,
-                fillColor: ok ? PURPLE : '#BDBDBD',
+                fillColor: sel ? '#FF791A' : ok ? '#1F1F1F' : '#FEFEFF',
                 fillOpacity: 1,
-                strokeColor: '#FEFEFF',
+                strokeColor: sel ? '#1F1F1F' : ok ? '#FEFEFF' : '#8A8A8A',
                 strokeWeight: 2,
               }}
             />
@@ -95,75 +80,155 @@ function GoogleMapPanel({ employer, neighborhoods, maxCommute, selectedId, onSel
   );
 }
 
-function SchematicMap({ employer, neighborhoods, maxCommute, selectedId, onSelect }: Props) {
-  const e = COMMUTE_EMPLOYER_XY[employer.id] ?? { x: 50, y: 50 };
-  return (
-    <div className="relative h-[360px] w-full overflow-hidden rounded-[var(--radius-card)] bg-fog">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" aria-hidden>
-        <defs>
-          <pattern id="schematic-grid" width="10" height="10" patternUnits="userSpaceOnUse">
-            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#E4E4E4" strokeWidth="0.3" />
-          </pattern>
-        </defs>
-        <rect width="100" height="100" fill="url(#schematic-grid)" />
-        {neighborhoods.map((n) =>
-          n.commute <= maxCommute ? (
-            <line key={n.id} x1={e.x} y1={e.y} x2={n.x} y2={n.y} stroke={PURPLE} strokeOpacity="0.25" strokeWidth="0.4" vectorEffect="non-scaling-stroke" />
-          ) : null,
-        )}
-      </svg>
+// Fixed bounds covering every neighborhood and employer, so the map doesn't jump between filters.
+const B = { minLat: 35.6, maxLat: 36.03, minLng: -79.11, maxLng: -78.47 };
+const COS = Math.cos((35.8 * Math.PI) / 180);
+const W = 1000;
+const H = Math.round((W * (B.maxLat - B.minLat)) / ((B.maxLng - B.minLng) * COS));
+const project = (lat: number, lng: number) => ({
+  x: ((lng - B.minLng) / (B.maxLng - B.minLng)) * W,
+  y: ((B.maxLat - lat) / (B.maxLat - B.minLat)) * H,
+});
+const UNITS_PER_KM = H / ((B.maxLat - B.minLat) * 111.2);
 
-      <div
-        className="absolute z-20 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
-        style={{ left: `${e.x}%`, top: `${Math.min(92, Math.max(8, e.y))}%` }}
-      >
-        <span className="block h-4 w-4 rounded-full border-[3px] border-paper bg-ink shadow" />
-        <span className="absolute bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 text-[11px] font-medium text-paper">
-          {employer.name}
-        </span>
+/** Where to place each label so close neighbors don't collide. */
+const LABEL: Record<string, 'r' | 'l' | 't' | 'b'> = {
+  morrisville: 't',
+  cary: 'b',
+  'north-raleigh': 't',
+  'downtown-raleigh': 'b',
+  'chapel-hill': 'b',
+  'south-durham': 't',
+  apex: 'l',
+  'holly-springs': 'r',
+  'wake-forest': 'l',
+};
+
+const REFERENCE = [
+  { name: 'RTP', lat: 35.9, lng: -78.86 },
+  { name: 'Durham', lat: 35.995, lng: -78.9 },
+  { name: 'Raleigh', lat: 35.81, lng: -78.6 },
+];
+
+function LatLngMap({ employer, neighborhoods, isMatch, selectedId, onSelect }: Props) {
+  const e = project(employer.lat, employer.lng);
+  const bar = 10 * UNITS_PER_KM;
+
+  return (
+    <figure className="w-full">
+      <div className="overflow-hidden rounded-[var(--radius-card)] bg-[#f3f1ec]">
+        <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="group" aria-label={`Map of neighborhoods around ${employer.name}`}>
+          {/* Faint graticule */}
+          {Array.from({ length: 5 }, (_, i) => (
+            <line key={`h${i}`} x1="0" x2={W} y1={(H / 5) * (i + 0.5)} y2={(H / 5) * (i + 0.5)} stroke="#1F1F1F" strokeOpacity="0.04" />
+          ))}
+          {Array.from({ length: 6 }, (_, i) => (
+            <line key={`v${i}`} y1="0" y2={H} x1={(W / 6) * (i + 0.5)} x2={(W / 6) * (i + 0.5)} stroke="#1F1F1F" strokeOpacity="0.04" />
+          ))}
+          {REFERENCE.map((r) => {
+            const p = project(r.lat, r.lng);
+            return (
+              <text key={r.name} x={p.x} y={p.y} textAnchor="middle" fontSize="30" fontWeight="600" fill="#1F1F1F" fillOpacity="0.09" letterSpacing="4">
+                {r.name.toUpperCase()}
+              </text>
+            );
+          })}
+
+          {/* Other employers, faint */}
+          {COMMUTE_EMPLOYERS.filter((x) => x.id !== employer.id).map((x) => {
+            const p = project(x.lat, x.lng);
+            return <rect key={x.id} x={p.x - 4} y={p.y - 4} width="8" height="8" fill="#1F1F1F" fillOpacity="0.15" />;
+          })}
+
+          {/* Routes from work to each matching neighborhood */}
+          {neighborhoods.filter(isMatch).map((n) => {
+            const p = project(n.lat, n.lng);
+            return <line key={`r-${n.id}`} x1={e.x} y1={e.y} x2={p.x} y2={p.y} stroke="#1F1F1F" strokeOpacity="0.22" strokeWidth="2" strokeDasharray="2 7" strokeLinecap="round" />;
+          })}
+
+          {/* Employer */}
+          <g>
+            <rect x={e.x - 11} y={e.y - 11} width="22" height="22" rx="4" fill="#1F1F1F" stroke="#FEFEFF" strokeWidth="4" />
+            <text x={e.x} y={e.y - 22} textAnchor="middle" fontSize="22" fontWeight="600" fill="#1F1F1F" paintOrder="stroke" stroke="#f3f1ec" strokeWidth="6">
+              {employer.name}
+            </text>
+          </g>
+
+          {neighborhoods.map((n) => {
+            const p = project(n.lat, n.lng);
+            const sel = n.id === selectedId;
+            const ok = isMatch(n);
+            const pos = LABEL[n.id] ?? 'r';
+            const lx = pos === 'r' ? p.x + 20 : pos === 'l' ? p.x - 20 : p.x;
+            const ly = pos === 't' ? p.y - 22 : pos === 'b' ? p.y + 36 : p.y + 8;
+            const anchor = pos === 'r' ? 'start' : pos === 'l' ? 'end' : 'middle';
+            return (
+              <g
+                key={n.id}
+                role="button"
+                tabIndex={0}
+                aria-pressed={sel}
+                aria-label={`${n.name}${ok ? ', matches your filters' : ', outside your filters'}`}
+                className="cursor-pointer outline-none [&:focus-visible_circle.dot]:stroke-[#3741B5]"
+                onClick={() => onSelect(n.id)}
+                onKeyDown={(ev) => {
+                  if (ev.key === 'Enter' || ev.key === ' ') {
+                    ev.preventDefault();
+                    onSelect(n.id);
+                  }
+                }}
+              >
+                <circle cx={p.x} cy={p.y} r="28" fill="transparent" />
+                {sel && <circle cx={p.x} cy={p.y} r="22" fill="none" stroke="#1F1F1F" strokeWidth="2.5" />}
+                <circle
+                  className="dot"
+                  cx={p.x}
+                  cy={p.y}
+                  r={sel ? 13 : 10}
+                  fill={sel ? '#FF791A' : ok ? '#1F1F1F' : '#FEFEFF'}
+                  stroke={sel ? '#FEFEFF' : ok ? '#FEFEFF' : '#8A8A8A'}
+                  strokeWidth={ok || sel ? 4 : 3}
+                />
+                <text
+                  x={lx}
+                  y={ly}
+                  textAnchor={anchor}
+                  fontSize={sel ? 25 : 22}
+                  fontWeight={sel ? 700 : ok ? 600 : 400}
+                  fill={ok || sel ? '#1F1F1F' : '#6E6E6E'}
+                  paintOrder="stroke"
+                  stroke="#f3f1ec"
+                  strokeWidth="6"
+                >
+                  {n.name}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Scale bar */}
+          <g transform={`translate(${W - bar - 36}, ${H - 34})`}>
+            <line x1="0" x2={bar} y1="0" y2="0" stroke="#1F1F1F" strokeWidth="3" />
+            <line x1="0" x2="0" y1="-7" y2="7" stroke="#1F1F1F" strokeWidth="3" />
+            <line x1={bar} x2={bar} y1="-7" y2="7" stroke="#1F1F1F" strokeWidth="3" />
+            <text x={bar / 2} y="-12" textAnchor="middle" fontSize="20" fill="#1F1F1F">
+              10 km (6 mi)
+            </text>
+          </g>
+        </svg>
       </div>
-
-      {neighborhoods.map((n) => {
-        const ok = n.commute <= maxCommute;
-        const sel = n.id === selectedId;
-        return (
-          <button
-            key={n.id}
-            type="button"
-            onClick={() => onSelect(n.id)}
-            aria-pressed={sel}
-            aria-label={`${n.name}, ${formatK(n.price)}, about ${n.commute} minutes`}
-            className="group absolute z-10 -translate-x-1/2 -translate-y-1/2 p-2"
-            style={{ left: `${n.x}%`, top: `${Math.min(92, Math.max(8, n.y))}%` }}
-          >
-            <span
-              className={`block rounded-full border-2 border-paper transition-all ${
-                sel ? 'h-4 w-4 ring-2 ring-violet/40' : 'h-3 w-3'
-              }`}
-              style={{ background: ok ? PURPLE : '#BDBDBD' }}
-            />
-            <span
-              className={`absolute left-1/2 top-7 -translate-x-1/2 whitespace-nowrap rounded-md bg-paper/95 px-2 py-0.5 text-[11px] shadow-sm ${
-                sel ? 'font-semibold text-ink' : 'text-ink-soft'
-              } ${ok || sel ? '' : 'hidden group-hover:block'}`}
-            >
-              {n.name}, {n.commute} min
-            </span>
-          </button>
-        );
-      })}
-
-      <p className="absolute bottom-3 left-3 rounded-full bg-paper/90 px-3 py-1 text-[11px] text-ink-soft">
-        Schematic layout, not to scale
-      </p>
-    </div>
-  );
-}
-
-function MapMessage({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-[360px] items-center justify-center rounded-[var(--radius-card)] bg-fog p-6 text-center text-sm text-ink-soft">
-      {children}
-    </div>
+      <figcaption className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-ink-soft">
+        <span className="flex items-center gap-2">
+          <span aria-hidden className="h-3 w-3 rounded-full bg-ink" /> Matches your filters
+        </span>
+        <span className="flex items-center gap-2">
+          <span aria-hidden className="h-3 w-3 rounded-full border-2 border-[#8A8A8A] bg-paper" /> Outside your filters
+        </span>
+        <span className="flex items-center gap-2">
+          <span aria-hidden className="h-3 w-3 rounded-full bg-ember ring-2 ring-ink" /> Selected
+        </span>
+        <span>Approximate locations by latitude and longitude, not a road map.</span>
+      </figcaption>
+    </figure>
   );
 }

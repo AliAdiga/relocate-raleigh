@@ -4,15 +4,22 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
-import ModalTriggerButton from '@/components/ModalTriggerButton';
-import { SaveButton, SchoolMeter } from '@/components/Shortlist';
+import ClosingCta from '@/components/ClosingCta';
+import AskNickButton from '@/components/AskNickButton';
+import { SaveButton } from '@/components/Shortlist';
 import { COMMUTE_EMPLOYERS } from '@/data/commuteEmployers';
 import { CULTURE_STORES, CULTURE_TABS } from '@/data/cultureStores';
-import { NEIGHBORHOODS, estimateCommuteMinutes, formatK } from '@/data/neighborhoods';
-
-const PURPLE = '#3741B5';
-const ORANGE = '#E8650A';
-const MUTED = '#CFCFCF';
+import {
+  COMMUTE_METHOD,
+  NEIGHBORHOODS,
+  NEIGHBORHOOD_DATA_AS_OF,
+  estimateCommuteMinutes,
+  formatBand,
+  formatK,
+  getNeighborhood,
+} from '@/data/neighborhoods';
+import { PHOTOS } from '@/data/photos';
+import { RESOURCES } from '@/data/resources';
 
 export function generateStaticParams() {
   return NEIGHBORHOODS.map((n) => ({ slug: n.id }));
@@ -20,187 +27,293 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const n = NEIGHBORHOODS.find((x) => x.id === slug);
+  const n = getNeighborhood(slug);
   if (!n) return {};
+  const title = `Moving to ${n.name}: homes, commutes and everyday life | Relocate Raleigh`;
+  const description = `${n.character} 4-bedroom homes typically ${formatBand(n)}; ${n.rtp.min}–${n.rtp.max} minutes to RTP at rush hour.`;
   return {
-    title: `Moving to ${n.name}, NC: commutes, prices and schools | Relocate Raleigh`,
-    description: `${n.blurb} Median home around ${formatK(n.price)}. Drive times from ${n.name} to 15 Triangle tech employers.`,
+    title,
+    description,
+    alternates: { canonical: `/neighborhoods/${n.id}` },
+    openGraph: { title, description, images: [{ url: PHOTOS[n.photo].src, width: PHOTOS[n.photo].width, height: PHOTOS[n.photo].height }] },
   };
 }
 
+const mapsLink = (q: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
 export default async function NeighborhoodPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const n = NEIGHBORHOODS.find((x) => x.id === slug);
+  const n = getNeighborhood(slug);
   if (!n) notFound();
+  const photo = PHOTOS[n.photo];
 
-  const commutes = COMMUTE_EMPLOYERS.map((e) => ({ ...e, minutes: estimateCommuteMinutes(e, n) })).sort(
-    (a, b) => a.minutes - b.minutes,
-  );
+  const commutes = COMMUTE_EMPLOYERS.map((e) => ({ ...e, minutes: estimateCommuteMinutes(e, n) })).sort((a, b) => a.minutes - b.minutes);
   const maxMinutes = Math.max(...commutes.map((c) => c.minutes));
-  const byPrice = [...NEIGHBORHOODS].sort((a, b) => b.price - a.price);
-  const maxPrice = byPrice[0].price;
-  const rank = byPrice.findIndex((x) => x.id === n.id) + 1;
+  // Extra headroom so the label after the widest range never runs off a phone screen.
+  const priceMax = Math.max(...NEIGHBORHOODS.map((x) => x.band.high)) * 1.3;
+  const byBand = [...NEIGHBORHOODS].sort((a, b) => a.band.low - b.band.low);
 
-  const grocers = CULTURE_TABS.flatMap((t) => CULTURE_STORES[t.id].map((s) => ({ ...s, group: t.label })))
-    .map((s) => ({ ...s, minutes: estimateCommuteMinutes({ id: s.id, name: s.name, lat: s.lat, lng: s.lng }, n) }))
+  const parks = RESOURCES.parks
+    .filter((p) => p.lat && p.lng)
+    .map((p) => ({ ...p, minutes: estimateCommuteMinutes({ lat: p.lat!, lng: p.lng! }, n) }))
     .sort((a, b) => a.minutes - b.minutes)
-    .slice(0, 6);
-
-  const others = NEIGHBORHOODS.filter((x) => x.id !== n.id);
+    .slice(0, 3);
+  const grocers = CULTURE_TABS.flatMap((t) => CULTURE_STORES[t.id].map((s) => ({ ...s, group: t.label })))
+    .map((s) => ({ ...s, minutes: estimateCommuteMinutes(s, n) }))
+    .sort((a, b) => a.minutes - b.minutes)
+    .slice(0, 5);
+  const related = NEIGHBORHOODS.filter((x) => x.id !== n.id)
+    .map((x) => ({ ...x, minutes: estimateCommuteMinutes(x, n) }))
+    .sort((a, b) => a.minutes - b.minutes)
+    .slice(0, 3);
 
   return (
     <>
       <SiteNav />
-      <main className="flex-1">
-        <section className="px-3 pt-4 sm:px-[30px] sm:pt-6" aria-labelledby="hood-title">
-          <div className="wash mx-auto grid max-w-[1380px] items-center gap-8 rounded-[var(--radius-panel)] px-6 py-12 sm:px-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:py-16">
+      <main id="main" className="flex-1">
+        {/* Header: real local photo, name, character, actions */}
+        <section className="shell pb-12 pt-6 lg:pb-16 lg:pt-10" aria-labelledby="hood-title">
+          <nav aria-label="Breadcrumb" className="text-sm text-ink-soft">
+            <Link href="/#neighborhoods" className="underline-offset-4 hover:text-ink hover:underline">
+              Explorer
+            </Link>
+            <span aria-hidden> / </span>
+            <Link href="/neighborhoods" className="underline-offset-4 hover:text-ink hover:underline">
+              Neighborhoods
+            </Link>
+            <span aria-hidden> / </span>
+            <span className="text-ink">{n.name}</span>
+          </nav>
+          <div className="mt-6 grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-14">
             <div className="space-y-6">
-              <nav aria-label="Breadcrumb" className="text-sm text-ink-soft">
-                <Link href="/neighborhoods" className="underline-offset-4 hover:underline">
-                  Neighborhoods
-                </Link>{' '}
-                / <span className="text-ink">{n.name}</span>
-              </nav>
-              <h1 id="hood-title" className="text-[clamp(2.5rem,5.5vw,4.1875rem)] font-semibold leading-[1.04] tracking-[-0.02em]">
+              <p className="kicker">In one word: {n.inOneWord}</p>
+              <h1 id="hood-title" className="t-display text-ink">
                 {n.name}
               </h1>
-              <p className="max-w-[520px] text-lg leading-relaxed text-ink">{n.blurb}</p>
-              <dl className="flex flex-wrap gap-x-10 gap-y-5">
-                <div>
-                  <dt className="text-sm text-ink-soft">Median home</dt>
-                  <dd className="text-[2.375rem] font-semibold leading-tight tracking-tight tabular-nums">{formatK(n.price)}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-ink-soft">Shortest tech commute</dt>
-                  <dd className="text-[2.375rem] font-semibold leading-tight tracking-tight tabular-nums">~{commutes[0].minutes} min</dd>
-                </div>
-                <div>
-                  <dt className="mb-2 text-sm text-ink-soft">Schools</dt>
-                  <dd>
-                    <SchoolMeter score={n.schools} />
-                  </dd>
-                </div>
-              </dl>
+              <p className="lead max-w-[520px] text-ink-soft">{n.character}</p>
               <div className="flex flex-wrap items-center gap-3">
-                <ModalTriggerButton variant="contact" className="btn-ink px-7 py-4 text-[0.9375rem]">
+                <AskNickButton topic={n.name} className="btn-ink px-6 py-3.5 text-[0.9375rem]">
                   Ask Nick about {n.name}
-                </ModalTriggerButton>
-                <span className="flex items-center gap-2 text-sm text-ink-soft">
-                  <SaveButton id={n.id} name={n.name} />
-                  Save to shortlist
-                </span>
+                </AskNickButton>
+                <SaveButton id={n.id} name={n.name} withLabel />
               </div>
             </div>
-            <div className="relative mx-auto aspect-[333/212] w-full max-w-[520px] overflow-hidden rounded-[var(--radius-card)] bg-paper">
-              <Image src={n.image} alt="" fill sizes="520px" className="object-cover" priority />
-            </div>
+            <figure>
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-panel)] sm:aspect-[16/10]">
+                <Image src={photo.src} alt={photo.alt} fill priority sizes="(min-width: 1024px) 680px, 92vw" className="object-cover" />
+              </div>
+              <figcaption className="mt-2 text-xs text-ink-soft">
+                {photo.place}. Photo: {photo.author}, {photo.license}.
+              </figcaption>
+            </figure>
           </div>
         </section>
 
-        <div className="mx-auto grid max-w-[1380px] gap-16 px-6 py-20 sm:px-[30px] lg:grid-cols-2 lg:gap-20 lg:px-[46px]">
-          <section aria-labelledby="commute-title">
-            <h2 id="commute-title" className="text-[clamp(1.75rem,3vw,2.375rem)] font-semibold tracking-tight">
+        {/* Key facts */}
+        <section className="border-y border-line bg-sand/60" aria-label="Key figures">
+          <dl className="shell grid grid-cols-2 gap-x-6 gap-y-8 py-10 lg:grid-cols-4">
+            <Fact label="Realistic 4-bedroom budget" value={formatBand(n)} note="From the guide’s family-home bands" />
+            <Fact label="Median sale price" value={n.median.label} note={n.median.note ?? `Redfin, ${NEIGHBORHOOD_DATA_AS_OF}`} />
+            <Fact label="Drive to central RTP, rush hour" value={`${n.rtp.min}–${n.rtp.max} min`} note="Typical range from most addresses" />
+            <Fact label="Walk Score" value={n.walkScore} note="Higher is more walkable" />
+          </dl>
+        </section>
+
+        <div className="shell section-y grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+          {/* Overview */}
+          <section aria-labelledby="overview" className="space-y-8">
+            <h2 id="overview" className="t-card">
+              What it’s like
+            </h2>
+            <div>
+              <h3 className="font-semibold text-ink">Housing</h3>
+              <p className="mt-2 leading-relaxed text-ink-soft">{n.housing}</p>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="font-semibold text-ink">Why families choose it</h3>
+                <ul className="mt-2 space-y-1.5 text-ink-soft">
+                  {n.pros.map((p) => (
+                    <li key={p} className="flex gap-2">
+                      <span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink" /> {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-ink">Honest tradeoffs</h3>
+                <ul className="mt-2 space-y-1.5 text-ink-soft">
+                  {n.cons.map((c) => (
+                    <li key={c} className="flex gap-2">
+                      <span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full border border-ink" /> {c}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="rounded-[var(--radius-card)] bg-fog p-5">
+              <h3 className="font-semibold text-ink">Schools</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+                Representative assignment patterns from the guide (early 2026). Schools are assigned by address and can
+                change each year, so check a specific address before you sign.
+              </p>
+              <ul className="mt-3 space-y-1.5 text-[0.9375rem] text-ink">
+                {n.schoolPatterns.map((s) => (
+                  <li key={s}>{s}</li>
+                ))}
+              </ul>
+              <a href={n.district.lookupUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-sm font-medium text-ink underline underline-offset-4">
+                {n.district.name} assignment lookup
+              </a>
+            </div>
+          </section>
+
+          {/* Commute */}
+          <section aria-labelledby="commute" className="space-y-6">
+            <h2 id="commute" className="t-card">
               Drive times to tech employers
             </h2>
-            <p className="mt-3 text-base leading-relaxed text-ink-soft">
-              Estimated from straight-line distance, so expect longer at rush hour. Purple bars are under 25 minutes.
-            </p>
-            <ul className="mt-8 space-y-3">
+            <p className="text-sm leading-relaxed text-ink-soft">{COMMUTE_METHOD} Bars under 25 minutes are dark.</p>
+            <ul className="space-y-2.5">
               {commutes.map((c) => (
-                <li key={c.id} className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 text-sm">
+                <li key={c.id} className="grid grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)_3.75rem] items-center gap-3 text-sm">
                   <span className="truncate text-ink">{c.name}</span>
-                  <span className="h-3 rounded-r-[4px] bg-fog" aria-hidden>
-                    <span
-                      className="block h-full rounded-r-[4px]"
-                      style={{ width: `${(c.minutes / maxMinutes) * 100}%`, background: c.minutes <= 25 ? PURPLE : MUTED }}
-                    />
+                  <span className="h-2.5 rounded-r-[4px] bg-fog" aria-hidden>
+                    <span className="block h-full rounded-r-[4px]" style={{ width: `${(c.minutes / maxMinutes) * 100}%`, background: c.minutes <= 25 ? '#1F1F1F' : '#C9C9C9' }} />
                   </span>
-                  <span className="text-right font-semibold tabular-nums">{c.minutes} min</span>
+                  <span className="text-right tabular-nums text-ink">~{c.minutes} min</span>
                 </li>
               ))}
             </ul>
           </section>
 
-          <div className="space-y-16">
-            <section aria-labelledby="price-title">
-              <h2 id="price-title" className="text-[clamp(1.75rem,3vw,2.375rem)] font-semibold tracking-tight">
-                Price compared with the Triangle
-              </h2>
-              <p className="mt-3 text-base leading-relaxed text-ink-soft">
-                {n.name} is the {rank === 1 ? '' : `${ordinal(rank)} `}most expensive of the {NEIGHBORHOODS.length}{' '}
-                neighborhoods we track.
-              </p>
-              <ul className="mt-8 space-y-3">
-                {byPrice.map((x) => {
-                  const me = x.id === n.id;
-                  return (
-                    <li key={x.id} className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)_3.5rem] items-center gap-3 text-sm">
-                      {me ? (
-                        <span className="truncate font-semibold text-ink">{x.name}</span>
-                      ) : (
-                        <Link href={`/neighborhoods/${x.id}`} className="truncate text-ink-soft underline-offset-4 hover:text-ink hover:underline">
-                          {x.name}
-                        </Link>
-                      )}
-                      <span className="h-3 rounded-r-[4px] bg-fog" aria-hidden>
-                        <span
-                          className="block h-full rounded-r-[4px]"
-                          style={{ width: `${(x.price / maxPrice) * 100}%`, background: me ? ORANGE : MUTED }}
-                        />
+          {/* Price context */}
+          <section aria-labelledby="price" className="space-y-6">
+            <h2 id="price" className="t-card">
+              4-bedroom budgets across the Triangle
+            </h2>
+            <p className="text-sm leading-relaxed text-ink-soft">
+              Realistic ranges for a 4-bedroom family home, from the Relocate Raleigh guide ({NEIGHBORHOOD_DATA_AS_OF}).
+            </p>
+            <ul className="space-y-2.5">
+              {byBand.map((x) => {
+                const me = x.id === n.id;
+                return (
+                  <li key={x.id} className="grid grid-cols-[minmax(0,9.5rem)_minmax(0,1fr)] items-center gap-3 text-sm">
+                    {me ? (
+                      <span className="flex items-center gap-2 truncate font-semibold text-ink">
+                        <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-ember" />
+                        {x.name}
                       </span>
-                      <span className={`text-right tabular-nums ${me ? 'font-semibold' : 'text-ink-soft'}`}>{formatK(x.price)}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-
-            <section aria-labelledby="grocers-title">
-              <h2 id="grocers-title" className="text-[clamp(1.75rem,3vw,2.375rem)] font-semibold tracking-tight">
-                Nearest specialty grocers
-              </h2>
-              <ul className="mt-6 divide-y divide-line rounded-[var(--radius-card)] border border-line">
-                {grocers.map((g) => (
-                  <li key={g.id} className="flex items-center justify-between gap-4 px-5 py-3.5">
-                    <span>
-                      <span className="block font-medium text-ink">{g.name}</span>
-                      <span className="block text-sm text-ink-soft">{g.group}</span>
+                    ) : (
+                      <Link href={`/neighborhoods/${x.id}`} className="truncate text-ink-soft underline-offset-4 hover:text-ink hover:underline">
+                        {x.name}
+                      </Link>
+                    )}
+                    <span className="relative h-5" aria-label={`${x.name}: ${formatBand(x)}`}>
+                      <span
+                        className={`absolute top-1/2 h-2.5 -translate-y-1/2 rounded-full ${me ? 'bg-ember-deep' : 'bg-[#C9C9C9]'}`}
+                        style={{ left: `${(x.band.low / priceMax) * 100}%`, width: `${((x.band.high - x.band.low) / priceMax) * 100}%` }}
+                      />
+                      <span className={`absolute top-1/2 -translate-y-1/2 pl-2 text-xs tabular-nums ${me ? 'font-semibold text-ink' : 'text-ink-soft'}`} style={{ left: `${(x.band.high / priceMax) * 100}%` }}>
+                        {formatK(x.band.high)}
+                      </span>
                     </span>
-                    <span className="shrink-0 text-sm tabular-nums text-ink-soft">~{g.minutes} min</span>
                   </li>
-                ))}
-              </ul>
-            </section>
-          </div>
+                );
+              })}
+            </ul>
+          </section>
+
+          {/* Everyday life nearby */}
+          <section aria-labelledby="nearby" className="space-y-6">
+            <h2 id="nearby" className="t-card">
+              Everyday life nearby
+            </h2>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="font-semibold text-ink">Closest big parks</h3>
+                <ul className="mt-3 space-y-3 text-sm">
+                  {parks.map((p) => (
+                    <li key={p.id}>
+                      <a href={p.url} target="_blank" rel="noopener noreferrer" className="font-medium text-ink underline-offset-4 hover:underline">
+                        {p.name}
+                      </a>
+                      <span className="block text-ink-soft">~{p.minutes} min drive (estimate)</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-ink">Specialty grocers</h3>
+                <ul className="mt-3 space-y-3 text-sm">
+                  {grocers.map((g) => (
+                    <li key={g.id}>
+                      <a href={mapsLink(`${g.name} ${g.address}`)} target="_blank" rel="noopener noreferrer" className="font-medium text-ink underline-offset-4 hover:underline">
+                        {g.name}
+                      </a>
+                      <span className="block text-ink-soft">
+                        {g.group}, ~{g.minutes} min
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </section>
         </div>
 
-        <section className="mx-auto max-w-[1380px] px-6 pb-24 sm:px-[30px]" aria-labelledby="others-title">
-          <h2 id="others-title" className="text-xl font-semibold tracking-tight">
-            Other neighborhoods
-          </h2>
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {others.map((o) => (
-              <li key={o.id}>
-                <Link href={`/neighborhoods/${o.id}`} className="block rounded-full bg-fog px-5 py-2.5 text-sm text-ink hover:bg-line">
-                  {o.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-10 max-w-3xl text-xs leading-relaxed text-stone">
-            Prices are rough median home values and school scores are simplified 1–10 ratings. Use them to start a
-            conversation, then confirm with current listings and the Wake County school assignment tool.
-          </p>
+        {/* Related */}
+        <section className="border-t border-line" aria-labelledby="related">
+          <div className="shell section-y">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 id="related" className="t-card">
+                Nearby alternatives
+              </h2>
+              <Link href="/#neighborhoods" className="text-[0.9375rem] font-medium underline underline-offset-4">
+                Back to the explorer (your filters are saved)
+              </Link>
+            </div>
+            <ul className="mt-6 grid gap-5 md:grid-cols-3">
+              {related.map((x) => {
+                const p = PHOTOS[x.photo];
+                return (
+                  <li key={x.id} className="relative overflow-hidden rounded-[var(--radius-card)] border border-line hover:border-[#c9c9c9]">
+                    <div className="relative aspect-[16/9]">
+                      <Image src={p.src} alt="" fill sizes="(min-width: 768px) 30vw, 92vw" className="object-cover" />
+                    </div>
+                    <div className="p-5">
+                      <Link href={`/neighborhoods/${x.id}`} className="text-lg font-semibold tracking-tight after:absolute after:inset-0">
+                        {x.name}
+                      </Link>
+                      <p className="mt-1 text-sm text-ink-soft">
+                        {x.inOneWord}. 4-bedroom homes {formatBand(x)}.
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="mt-10 max-w-3xl text-xs leading-relaxed text-stone">
+              Sources: Redfin and Homes.com market snapshots ({NEIGHBORHOOD_DATA_AS_OF}) and representative school
+              patterns (GreatSchools, early 2026), compiled in the Relocate Raleigh guide. Figures are a starting point;
+              confirm with current listings and the district lookup.
+            </p>
+          </div>
         </section>
+        <ClosingCta title={`Thinking about ${n.name}? Let’s talk it through.`} />
       </main>
       <SiteFooter />
     </>
   );
 }
 
-function ordinal(n: number) {
-  if (n === 1) return '';
-  const s = ['th', 'st', 'nd', 'rd'];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+function Fact({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <div>
+      <dt className="text-sm text-ink-soft">{label}</dt>
+      <dd className="mt-1 text-[clamp(1.375rem,1.1rem+0.9vw,1.875rem)] font-semibold leading-tight tracking-tight tabular-nums text-ink">{value}</dd>
+      <dd className="mt-1 text-xs text-ink-soft">{note}</dd>
+    </div>
+  );
 }

@@ -1,10 +1,11 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react'
 import ContactModal from './ContactModal'
 
 export type ModalVariant = 'guide' | 'contact'
-export type ModalOptions = { message?: string }
+/** `context` is shown to the visitor, editable, and only sent if they keep it. */
+export type ModalOptions = { context?: string; contextLabel?: string }
 
 type Ctx = {
   open: (variant: ModalVariant, options?: ModalOptions) => void
@@ -21,22 +22,25 @@ export function useContactModal() {
 
 export default function ContactModalProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<{ variant: ModalVariant; options: ModalOptions } | null>(null)
+  const returnFocus = useRef<HTMLElement | null>(null)
+
+  const open = useCallback((variant: ModalVariant, options: ModalOptions = {}) => {
+    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    setState({ variant, options })
+  }, [])
+
+  const close = useCallback(() => {
+    setState(null)
+    const el = returnFocus.current
+    if (el && document.contains(el)) requestAnimationFrame(() => el.focus())
+  }, [])
+
+  const value = useMemo(() => ({ open, close }), [open, close])
 
   return (
-    <ModalCtx.Provider
-      value={{
-        open: (variant, options = {}) => setState({ variant, options }),
-        close: () => setState(null),
-      }}
-    >
+    <ModalCtx.Provider value={value}>
       {children}
-      {state && (
-        <ContactModal
-          variant={state.variant}
-          defaultMessage={state.options.message}
-          onClose={() => setState(null)}
-        />
-      )}
+      {state && <ContactModal variant={state.variant} options={state.options} onClose={close} />}
     </ModalCtx.Provider>
   )
 }

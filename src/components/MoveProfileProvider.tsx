@@ -2,6 +2,9 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import type { StateCode } from '@/data/relocationStateData';
+import { NEIGHBORHOODS } from '@/data/neighborhoods';
+
+const NEIGHBORHOOD_IDS = new Set(NEIGHBORHOODS.map((n) => n.id));
 
 /**
  * What the visitor has told us so far. The hero's "moving from" picker and the calculator share
@@ -12,10 +15,9 @@ type Profile = {
   setOrigin: (s: StateCode) => void;
   salary: number;
   setSalary: (n: number) => void;
-  employerId: string;
-  setEmployerId: (id: string) => void;
   shortlist: string[];
-  toggleShortlisted: (id: string) => void;
+  /** Returns what happened so callers can explain a full shortlist instead of silently dropping one. */
+  toggleShortlisted: (id: string) => 'added' | 'removed' | 'full';
   removeFromShortlist: (id: string) => void;
   clearShortlist: () => void;
 };
@@ -32,7 +34,9 @@ function read(): string[] {
   if (cache) return cache;
   try {
     const parsed = JSON.parse(localStorage.getItem(KEY) ?? '[]');
-    cache = Array.isArray(parsed) ? parsed.filter((x) => typeof x === 'string').slice(0, SHORTLIST_MAX) : [];
+    cache = Array.isArray(parsed)
+      ? parsed.filter((x): x is string => typeof x === 'string' && NEIGHBORHOOD_IDS.has(x)).slice(0, SHORTLIST_MAX)
+      : [];
   } catch {
     cache = [];
   }
@@ -75,13 +79,17 @@ export function useMoveProfile() {
 export default function MoveProfileProvider({ children }: { children: ReactNode }) {
   const [origin, setOrigin] = useState<StateCode>('WA');
   const [salary, setSalary] = useState(200_000);
-  const [employerId, setEmployerId] = useState('cisco');
   const shortlist = useSyncExternalStore(subscribe, read, () => EMPTY);
 
-  const toggleShortlisted = useCallback((id: string) => {
+  const toggleShortlisted = useCallback((id: string): 'added' | 'removed' | 'full' => {
     const cur = read();
-    if (cur.includes(id)) write(cur.filter((x) => x !== id));
-    else write([...cur, id].slice(-SHORTLIST_MAX));
+    if (cur.includes(id)) {
+      write(cur.filter((x) => x !== id));
+      return 'removed';
+    }
+    if (cur.length >= SHORTLIST_MAX) return 'full';
+    write([...cur, id]);
+    return 'added';
   }, []);
   const removeFromShortlist = useCallback((id: string) => write(read().filter((x) => x !== id)), []);
   const clearShortlist = useCallback(() => write([]), []);
@@ -92,14 +100,12 @@ export default function MoveProfileProvider({ children }: { children: ReactNode 
       setOrigin,
       salary,
       setSalary,
-      employerId,
-      setEmployerId,
       shortlist,
       toggleShortlisted,
       removeFromShortlist,
       clearShortlist,
     }),
-    [origin, salary, employerId, shortlist, toggleShortlisted, removeFromShortlist, clearShortlist],
+    [origin, salary, shortlist, toggleShortlisted, removeFromShortlist, clearShortlist],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

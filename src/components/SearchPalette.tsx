@@ -3,9 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { COMMUTE_EMPLOYERS } from '@/data/commuteEmployers';
-import { NEIGHBORHOODS, formatK } from '@/data/neighborhoods';
+import { NEIGHBORHOODS, formatBand } from '@/data/neighborhoods';
 import { CULTURE_STORES, CULTURE_TABS } from '@/data/cultureStores';
-import { useMoveProfile } from './MoveProfileProvider';
+import { useExplorerState } from '@/lib/explorerState';
 import { IconSearch } from './ui/Icons';
 
 type Item = { id: string; group: string; label: string; hint: string; run: () => void };
@@ -13,7 +13,7 @@ type Item = { id: string; group: string; label: string; hint: string; run: () =>
 /** Quick search across neighborhoods, employers, grocers and pages. Opens with Ctrl/⌘+K or "/". */
 export default function SearchPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
-  const { setEmployerId } = useMoveProfile();
+  const [, updateExplorer] = useExplorerState();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,17 +24,19 @@ export default function SearchPalette({ open, onClose }: { open: boolean; onClos
       router.push(href);
     };
     const pages: Item[] = [
-      { id: 'p-math', group: 'Pages', label: 'Salary calculator', hint: 'The math', run: go('/#math') },
       { id: 'p-hoods', group: 'Pages', label: 'Neighborhood explorer', hint: 'Commute and price', run: go('/#neighborhoods') },
-      { id: 'p-scout', group: 'Pages', label: 'Scouting trip planner', hint: '3-day itinerary', run: go('/scouting') },
-      { id: 'p-events', group: 'Pages', label: 'Events calendar', hint: 'Meetups and festivals', run: go('/events') },
-      { id: 'p-about', group: 'Pages', label: 'About Nick', hint: 'Book a call', run: go('/#about') },
+      { id: 'p-math', group: 'Pages', label: 'Cost calculator', hint: 'What your salary is worth', run: go('/#math') },
+      { id: 'p-scout', group: 'Pages', label: 'Scouting trip planner', hint: '3- or 5-day plan', run: go('/scouting') },
+      { id: 'p-check', group: 'Pages', label: 'Relocation checklist', hint: 'Before the move to day 30', run: go('/checklist') },
+      { id: 'p-life', group: 'Pages', label: 'Everyday resources', hint: 'Parks, groceries, healthcare', run: go('/#everyday') },
+      { id: 'p-faq', group: 'Pages', label: 'Questions and answers', hint: 'How Nick helps', run: go('/#faq') },
+      { id: 'p-about', group: 'Pages', label: 'About Nick', hint: 'His story', run: go('/#about') },
     ];
     const hoods: Item[] = NEIGHBORHOODS.map((n) => ({
       id: `n-${n.id}`,
       group: 'Neighborhoods',
       label: n.name,
-      hint: `${formatK(n.price)}, schools ${n.schools}/10`,
+      hint: `${n.inOneWord}, 4BR ${formatBand(n)}`,
       run: go(`/neighborhoods/${n.id}`),
     }));
     const employers: Item[] = COMMUTE_EMPLOYERS.map((e) => ({
@@ -43,7 +45,7 @@ export default function SearchPalette({ open, onClose }: { open: boolean; onClos
       label: e.name,
       hint: 'See commutes',
       run: () => {
-        setEmployerId(e.id);
+        updateExplorer({ employerId: e.id });
         go('/#neighborhoods')();
       },
     }));
@@ -53,11 +55,12 @@ export default function SearchPalette({ open, onClose }: { open: boolean; onClos
         group: 'Grocers',
         label: s.name,
         hint: s.address.split(',').slice(-2, -1)[0]?.trim() ?? t.label,
-        run: go('/#community'),
+        run: go('/#everyday'),
       })),
     );
     return [...pages, ...hoods, ...employers, ...stores];
-  }, [router, onClose, setEmployerId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, onClose]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();

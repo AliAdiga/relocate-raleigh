@@ -68,7 +68,7 @@ export default function EventsCalendar({ events }: { events: CalendarEvent[] }) 
             calendar yet.
           </p>
           <p className="mt-3 text-sm text-ink-soft">
-            The calendar refreshes every Monday. Check back soon.
+            Try another category, or browse the everyday resources on the home page.
           </p>
         </div>
       ) : (

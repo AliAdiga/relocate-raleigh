@@ -30,8 +30,13 @@ export function formatDateLabel(isoDate: string): string {
   return `${MONTH_ABBR[month - 1]} ${String(day).padStart(2, '0')}`
 }
 
+/** Today's date in the Triangle's time zone (YYYY-MM-DD), so evening visits don't drop same-day events. */
+function triangleToday(now: Date) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+}
+
 export function getUpcomingEvents(limit = 3, now: Date = new Date()): CalendarEvent[] {
-  const today = now.toISOString().slice(0, 10)
+  const today = triangleToday(now)
   return (eventsData.events as CalendarEvent[])
     .filter((e) => e.date >= today)
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -39,7 +44,7 @@ export function getUpcomingEvents(limit = 3, now: Date = new Date()): CalendarEv
 }
 
 export function getAllUpcomingEvents(now: Date = new Date()): CalendarEvent[] {
-  const today = now.toISOString().slice(0, 10)
+  const today = triangleToday(now)
   return (eventsData.events as CalendarEvent[])
     .filter((e) => e.date >= today)
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -50,4 +55,9 @@ export function formatMonthLabel(yearMonth: string): string {
   if (!year || !month) return yearMonth
   const date = new Date(year, month - 1, 1)
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+/** Days since the events feed was last generated. */
+export function eventsFeedAgeDays(generatedAt: string, now: Date = new Date()): number {
+  return Math.floor((now.getTime() - new Date(generatedAt).getTime()) / 86_400_000)
 }

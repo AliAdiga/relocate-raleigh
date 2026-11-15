@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
 import BarPair from '@/components/charts/BarPair';
-import { SchoolMeter } from '@/components/Shortlist';
+import { DestinationDot, TriangleOutline } from '@/components/ui/BrandLines';
 import {
   IconArrowLeft,
   IconArrowRight,
@@ -38,9 +38,9 @@ const COLORS = [
 ];
 
 const ACCENTS = [
-  { name: 'Leaf', hex: '#58BF52', role: 'Step 1 icons, school meter, success' },
-  { name: 'Ember', hex: '#FF791A', role: 'Step 2 icons, Raleigh dot in the logo' },
-  { name: 'Violet', hex: '#3741B5', role: 'Step 3 icons, focus ring, Raleigh in charts' },
+  { name: 'Leaf', hex: '#58BF52', role: 'Success and match checkmarks only' },
+  { name: 'Ember', hex: '#FF791A', role: 'Destination dot, selected places, final steps' },
+  { name: 'Violet', hex: '#3741B5', role: 'Focus rings and data-viz limits' },
   { name: 'Ember deep', hex: '#E8650A', role: '"Your state" in charts, dates' },
 ];
 
@@ -179,7 +179,7 @@ export default function StyleguidePage() {
         </Section>
 
         <Section id="components" title="Components">
-          <div className="grid gap-10 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 [&>*]:min-w-0">
             <div className="space-y-5">
               <h3 className="text-lg font-semibold">Buttons</h3>
               <div className="flex flex-wrap gap-3">
@@ -194,9 +194,9 @@ export default function StyleguidePage() {
                 <span className="mb-2 block text-sm font-medium">Your salary today</span>
                 <input className="field" defaultValue="200,000" />
               </label>
-              <div className="flex max-w-[460px] items-center rounded-full bg-paper p-1.5 pl-5 shadow-[0_10px_30px_-20px_rgba(31,31,31,0.5)] ring-1 ring-line">
-                <span className="flex-1 text-[0.9375rem] text-[#8a8a8a]">Enter your email</span>
-                <span className="btn-ink px-6 py-3 text-[0.9375rem]">Get the guide</span>
+              <div className="flex max-w-[460px] items-center gap-2 overflow-hidden rounded-full bg-paper p-1.5 pl-5 shadow-[0_10px_30px_-20px_rgba(31,31,31,0.5)] ring-1 ring-line">
+                <span className="min-w-0 flex-1 truncate text-[0.9375rem] text-[#8a8a8a]">Enter your email</span>
+                <span className="btn-ink shrink-0 px-5 py-3 text-[0.9375rem]">Get the guide</span>
               </div>
             </div>
             <div className="space-y-5">
@@ -206,9 +206,15 @@ export default function StyleguidePage() {
                 <span className="rounded-full bg-fog px-5 py-2.5 text-sm font-medium text-ink-soft">Option</span>
                 <span className="rounded-full bg-fog px-3 py-1 text-xs">Tag</span>
               </div>
-              <SchoolMeter score={8} />
+              <p className="flex items-center gap-3 text-sm text-ink-soft">
+                <DestinationDot /> Destination dot: selected place, final stop, active nav item
+              </p>
+              <div className="relative h-28 overflow-hidden rounded-[var(--radius-card)] bg-sand">
+                <TriangleOutline className="absolute -right-6 -top-6 w-48 text-ink" opacity={0.08} dot />
+                <p className="relative p-4 text-sm text-ink-soft">Cropped triangle outline, 3–8% opacity, never behind body text.</p>
+              </div>
               <h3 className="pt-4 text-lg font-semibold">Radii</h3>
-              <div className="flex items-end gap-4">
+              <div className="flex flex-wrap items-end gap-4">
                 <div className="h-20 w-28 rounded-[var(--radius-panel)] bg-fog" title="Panel 28px" />
                 <div className="h-16 w-24 rounded-[var(--radius-card)] bg-fog" title="Card 20px" />
                 <div className="h-12 w-20 rounded-[0.875rem] bg-fog" title="Field 14px" />

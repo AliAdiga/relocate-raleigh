@@ -32,7 +32,7 @@ const DAY_2: TripDay = {
   tasks: [
     { id: 'd2-midtown', text: 'Walk Midtown and the streets around North Hills' },
     { id: 'd2-north', text: 'Visit one quieter North Raleigh area that maps to your candidate schools' },
-    { id: 'd2-schools', text: 'Go see the actual elementary and middle/high schools for your addresses', href: 'https://www.wcpss.net/domain/4783' },
+    { id: 'd2-schools', text: 'Go see the actual elementary and middle/high schools for your addresses', href: 'https://www.wcpss.net/enroll/base-schools' },
     { id: 'd2-errands', text: 'Midday: run a real grocery and errand loop' },
     { id: 'd2-pickup', text: 'Drive a major road at school pickup time, then have dinner in the neighborhood' },
   ],

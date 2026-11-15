@@ -27,22 +27,3 @@ export const COMMUTE_EMPLOYERS: CommuteEmployer[] = [
   { id: "fidelity", name: "Fidelity (RTP)", lat: 35.9065, lng: -78.8225 },
   { id: "iqv", name: "IQVIA (Durham)", lat: 36.0008, lng: -78.9012 },
 ];
-
-/** Schematic x/y (0–100) for SVG fallback map — roughly RTP left, Raleigh right, Cary south, Durham northwest. */
-export const COMMUTE_EMPLOYER_XY: Record<string, { x: number; y: number }> = {
-  cisco: { x: 40, y: 40 },
-  apple: { x: 38, y: 36 },
-  ibm: { x: 42, y: 38 },
-  google: { x: 20, y: 28 },
-  microsoft: { x: 48, y: 37 },
-  meta: { x: 44, y: 34 },
-  oracle: { x: 41, y: 42 },
-  nvidia: { x: 39, y: 38 },
-  redhat: { x: 82, y: 58 },
-  epic: { x: 52, y: 62 },
-  sas: { x: 50, y: 46 },
-  lenovo: { x: 49, y: 39 },
-  netapp: { x: 43, y: 41 },
-  fidelity: { x: 36, y: 35 },
-  iqv: { x: 22, y: 26 },
-};

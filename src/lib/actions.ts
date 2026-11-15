@@ -11,6 +11,9 @@ const FROM = 'Relocate Raleigh <team@relocateraleigh.com>'
 const GUIDE_PDF_PATH = path.join(process.cwd(), 'content', 'relocation-guide.pdf')
 const GUIDE_PDF_FILENAME = 'Relocate-Raleigh-Guide.pdf'
 
+/** Hidden field real people never fill in. Bots that do get a generic failure, never a fake success. */
+const HONEYPOT = 'company_website'
+
 async function loadGuidePdf(): Promise<Buffer | null> {
   try {
     return await readFile(GUIDE_PDF_PATH)
@@ -20,17 +23,26 @@ async function loadGuidePdf(): Promise<Buffer | null> {
   }
 }
 
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .optional()
+    .transform((v) => (v ? v : undefined))
+
 const guideSchema = z.object({
-  name: z.string().max(100).optional(),
-  email: z.email('Please enter a valid email'),
-  origin: z.string().max(100).optional(),
+  name: optionalText(100),
+  email: z.email('Enter an email address like name@example.com'),
+  origin: optionalText(120),
 })
 
 const contactSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  email: z.email('Please enter a valid email'),
-  message: z.string().min(1, 'Message is required').max(5000),
-  timeline: z.string().max(50).optional(),
+  name: z.string().trim().min(1, 'Enter your name').max(100),
+  email: z.email('Enter an email address like name@example.com'),
+  timeline: optionalText(50),
+  message: optionalText(5000),
+  context: optionalText(3000),
 })
 
 export type FormState = {
@@ -39,52 +51,45 @@ export type FormState = {
   fieldErrors?: Record<string, string[] | undefined>
 }
 
-const initialStateOk = (message: string): FormState => ({ ok: true, message })
-const initialStateErr = (message: string): FormState => ({ ok: false, message })
+const fail = (message: string): FormState => ({ ok: false, message })
 
-function getClient() {
+function getClient(): Resend | null {
   const key = process.env.RESEND_API_KEY
-  if (!key) throw new Error('RESEND_API_KEY is not set')
-  return new Resend(key)
+  return key ? new Resend(key) : null
 }
 
-export async function submitGuideRequest(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const parsed = guideSchema.safeParse({
-    name: formData.get('name') || undefined,
-    email: formData.get('email'),
-    origin: formData.get('origin') || undefined,
-  })
+/** Resend returns `{ error }` instead of throwing, so check it explicitly. */
+async function send(resend: Resend, payload: Parameters<Resend['emails']['send']>[0]) {
+  const { error } = await resend.emails.send(payload)
+  if (error) throw new Error(`${error.name}: ${error.message}`)
+}
 
-  if (!parsed.success) {
-    return {
-      ok: false,
-      fieldErrors: parsed.error.flatten().fieldErrors,
-    }
+const read = (fd: FormData, k: string) => {
+  const v = fd.get(k)
+  return typeof v === 'string' ? v : undefined
+}
+
+export async function submitGuideRequest(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (read(formData, HONEYPOT)) return fail('We couldn’t send that. Please email team@relocateraleigh.com.')
+
+  const parsed = guideSchema.safeParse({
+    name: read(formData, 'name'),
+    email: read(formData, 'email'),
+    origin: read(formData, 'origin'),
+  })
+  if (!parsed.success) return { ok: false, fieldErrors: z.flattenError(parsed.error).fieldErrors }
+
+  const resend = getClient()
+  if (!resend) {
+    console.error('submitGuideRequest: RESEND_API_KEY is not set')
+    return fail('The guide can’t be emailed right now. Please try again later or write to team@relocateraleigh.com.')
   }
 
   const { name, email, origin } = parsed.data
   const pdfBuffer = await loadGuidePdf()
 
   try {
-    const resend = getClient()
-    await resend.emails.send({
-      from: FROM,
-      to: DEST,
-      replyTo: email,
-      subject: `New guide request: ${name ?? email}`,
-      text: [
-        name ? `Name: ${name}` : null,
-        `Email: ${email}`,
-        origin ? `Moving from: ${origin}` : null,
-      ]
-        .filter(Boolean)
-        .join('\n'),
-    })
-
-    const visitorEmail = {
+    await send(resend, {
       from: FROM,
       to: email,
       replyTo: DEST,
@@ -93,76 +98,74 @@ export async function submitGuideRequest(
       text:
         `Hi ${name ?? 'there'},\n\n` +
         (pdfBuffer
-          ? `Your Relocate Raleigh Guide is attached as a PDF — 8 chapters plus checklists, written by a local who made the move himself.\n\n`
-          : `Thanks for requesting the Relocate Raleigh Guide. We'll email the PDF shortly.\n\n`) +
-        `Reply to this email with any questions about the move — we read every response.\n\n` +
-        `— The Relocate Raleigh team`,
-      ...(pdfBuffer
-        ? {
-            attachments: [
-              {
-                filename: GUIDE_PDF_FILENAME,
-                content: pdfBuffer,
-              },
-            ],
-          }
-        : {}),
-    }
-
-    await resend.emails.send(visitorEmail)
-
-    return initialStateOk(
-      pdfBuffer
-        ? 'Check your inbox — the guide is on its way.'
-        : "Check your inbox — we just sent you a confirmation.",
-    )
+          ? 'Your Relocate Raleigh guide is attached as a PDF: 8 chapters plus checklists, written by a local who made the move himself.\n\n'
+          : 'Thanks for requesting the Relocate Raleigh guide. We will email the PDF shortly.\n\n') +
+        'Reply to this email with any questions about the move. We read every response.\n\nThe Relocate Raleigh team',
+      ...(pdfBuffer ? { attachments: [{ filename: GUIDE_PDF_FILENAME, content: pdfBuffer }] } : {}),
+    })
   } catch (err) {
     console.error('submitGuideRequest failed:', err)
-    return initialStateErr('Something went wrong sending your request. Please try again.')
-  }
-}
-
-export async function submitContactMessage(
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  const parsed = contactSchema.safeParse({
-    name: formData.get('name'),
-    email: formData.get('email'),
-    message: formData.get('message'),
-    timeline: formData.get('timeline') || undefined,
-  })
-
-  if (!parsed.success) {
-    return {
-      ok: false,
-      fieldErrors: parsed.error.flatten().fieldErrors,
-    }
+    return fail('We couldn’t send the guide. Check the address and try again, or write to team@relocateraleigh.com.')
   }
 
-  const { name, email, message, timeline } = parsed.data
+  // The visitor already has their guide; a failed team notification shouldn't turn that into an error.
   try {
-    const resend = getClient()
-    await resend.emails.send({
+    await send(resend, {
       from: FROM,
       to: DEST,
       replyTo: email,
-      subject: `New contact: ${name}`,
+      subject: `New guide request: ${name ?? email}`,
+      text: [name ? `Name: ${name}` : null, `Email: ${email}`, origin ? `Context: ${origin}` : null].filter(Boolean).join('\n'),
+    })
+  } catch (err) {
+    console.error('Guide team notification failed:', err)
+  }
+
+  return {
+    ok: true,
+    message: pdfBuffer ? `Sent. Check ${email} for the guide.` : `Sent. Check ${email} for a confirmation.`,
+  }
+}
+
+export async function submitContactMessage(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (read(formData, HONEYPOT)) return fail('We couldn’t send that. Please email team@relocateraleigh.com.')
+
+  const parsed = contactSchema.safeParse({
+    name: read(formData, 'name'),
+    email: read(formData, 'email'),
+    timeline: read(formData, 'timeline'),
+    message: read(formData, 'message'),
+    context: read(formData, 'context'),
+  })
+  if (!parsed.success) return { ok: false, fieldErrors: z.flattenError(parsed.error).fieldErrors }
+
+  const resend = getClient()
+  if (!resend) {
+    console.error('submitContactMessage: RESEND_API_KEY is not set')
+    return fail('Requests can’t be sent from the site right now. Please call (347) 757-9850 or email team@relocateraleigh.com.')
+  }
+
+  const { name, email, timeline, message, context } = parsed.data
+  try {
+    await send(resend, {
+      from: FROM,
+      to: DEST,
+      replyTo: email,
+      subject: `Relocation call request: ${name}`,
       text: [
         `Name: ${name}`,
         `Email: ${email}`,
-        timeline ? `Timeline: ${timeline}` : null,
+        `Timeline: ${timeline ?? 'Not given'}`,
         '',
         'Message:',
-        message,
-      ]
-        .filter((l) => l !== null)
-        .join('\n'),
+        message ?? '(none)',
+        ...(context ? ['', 'Context the visitor chose to include:', context] : []),
+      ].join('\n'),
     })
-
-    return initialStateOk('Thanks — Nick will reply within a day or two.')
   } catch (err) {
     console.error('submitContactMessage failed:', err)
-    return initialStateErr('Something went wrong sending your message. Please try again.')
+    return fail('Your request didn’t go through. Please try again, or call (347) 757-9850.')
   }
+
+  return { ok: true, message: 'Request sent. Nick usually replies within a day or two to suggest a time to talk.' }
 }

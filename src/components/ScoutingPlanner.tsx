@@ -5,6 +5,7 @@ import { BEFORE_YOU_BOOK, SKIP_LIST, TRIP_PLANS } from '@/data/scoutingTrip';
 import { useStoredState } from '@/lib/useStoredState';
 import { useContactModal } from './ContactModalProvider';
 import { IconCalendar, IconCheck, IconPrinter } from './ui/Icons';
+import ScoutingStops, { NO_STOPS, STOPS_KEY, type Stop } from './ScoutingStops';
 
 // Stable fallbacks (useSyncExternalStore needs referentially stable snapshots).
 const NO_DONE: string[] = [];
@@ -39,6 +40,7 @@ export default function ScoutingPlanner() {
   const [length, setLength] = useStoredState<3 | 5>('rr-trip-length', DEFAULT_LENGTH);
   const [start, setStart] = useStoredState<string>('rr-trip-start', NO_DATE);
   const [done, setDone] = useStoredState<string[]>('rr-trip-done', NO_DONE);
+  const [stops] = useStoredState<Stop[]>(STOPS_KEY, NO_STOPS);
 
   const plan = TRIP_PLANS[length];
   const total = plan.reduce((n, d) => n + d.tasks.length, 0);
@@ -50,18 +52,28 @@ export default function ScoutingPlanner() {
   const sendPlan = () => {
     const when = start ? `arriving ${fmt(addDays(start, 0))}` : 'dates not set yet';
     open('contact', {
-      message: [
-        `Hi Nick, I'm planning a ${length}-day scouting trip (${when}).`,
+      contextLabel: 'Your trip plan (included with your request)',
+      context: [
+        `Planning a ${length}-day scouting trip (${when}).`,
+        ...(stops.length ? ['', 'My stops:', ...stops.map((s, i) => `${i + 1}. ${s.label}`)] : []),
         '',
+        'Suggested itinerary:',
         ...plan.map((d, i) => `Day ${i + 1}: ${d.title}`),
-        '',
-        'Could you help me pick the right neighborhoods and schools to visit?',
       ].join('\n'),
     });
   };
 
   return (
     <div className="space-y-10">
+      <ScoutingStops />
+
+      <div>
+        <h2 className="t-card">Suggested itinerary</h2>
+        <p className="mt-2 max-w-[640px] text-[0.9375rem] leading-relaxed text-ink-soft">
+          A suggestion from Nick’s guide that treats the trip as a test run of daily life. Adapt it to your stops.
+        </p>
+      </div>
+
       {/* Controls */}
       <div className="flex flex-col gap-5 rounded-[var(--radius-card)] bg-fog p-5 sm:p-6 lg:flex-row lg:items-end print:hidden">
         <div>

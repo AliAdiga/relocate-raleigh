@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState, useId } from 'react';
+import { useActionState, useEffect, useId } from 'react';
+import { trackEvent } from '@/lib/analytics';
 import { submitGuideRequest, type FormState } from '@/lib/actions';
 import { IconCheck } from './ui/Icons';
 import { useMoveProfile } from './MoveProfileProvider';
@@ -13,6 +14,10 @@ export default function GuideEmailForm({ source }: { source: string }) {
   const [state, action, pending] = useActionState(submitGuideRequest, initial);
   const id = useId();
   const { origin } = useMoveProfile();
+
+  useEffect(() => {
+    if (state.ok) trackEvent('guide_signup_completed');
+  }, [state.ok]);
 
   if (state.ok) {
     return (
@@ -28,8 +33,11 @@ export default function GuideEmailForm({ source }: { source: string }) {
   const error = state.fieldErrors?.email?.[0] ?? (!state.ok ? state.message : undefined);
 
   return (
-    <form action={action} className="w-full max-w-[460px]" noValidate>
-      <input type="hidden" name="origin" value={`${US_STATE_DATA[origin].name} (signed up from: ${source})`} />
+    <form action={action} className="relative w-full max-w-[460px]" noValidate aria-busy={pending}>
+      <input type="hidden" name="origin" value={`Moving from ${US_STATE_DATA[origin].name} (${source})`} />
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <input type="text" name="company_website" tabIndex={-1} autoComplete="off" />
+      </div>
       <label htmlFor={id} className="sr-only">
         Email address
       </label>
@@ -46,7 +54,7 @@ export default function GuideEmailForm({ source }: { source: string }) {
           className="min-w-0 flex-1 bg-transparent py-2.5 text-[0.9375rem] text-ink outline-none placeholder:text-[#8a8a8a]"
         />
         <button type="submit" disabled={pending} className="btn-ink shrink-0 px-5 py-3 text-[0.9375rem] disabled:opacity-60 sm:px-6">
-          {pending ? 'Sending…' : 'Get the guide'}
+          {pending ? 'Sending…' : 'Email me the guide'}
         </button>
       </div>
       {error && (
