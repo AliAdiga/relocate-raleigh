@@ -9,11 +9,6 @@ const M = '/media/relocation';
 
 export const CONCEPT_HOME = {
   aspect: { w: 1280, h: 720 },
-  hero: {
-    still: { src: `${M}/rr-01-hero-master.webp`, width: 1672, height: 941 },
-    video: `${M}/hero-ambient.mp4`,
-    alt: 'Illustration of a cream single-story home with a dark metal roof, a timber front porch, a young tree and a planted front garden',
-  },
   exterior: {
     still: { src: `${M}/rr-03-explore-roof-on.webp`, width: 1672, height: 941 },
     alt: 'Illustrated model of a single-story home seen from above, with the roof on',

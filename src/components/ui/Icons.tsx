@@ -116,6 +116,22 @@ export function IconPhone(p: IconProps) {
   );
 }
 
+export function IconBuilding(p: IconProps) {
+  return (
+    <Base {...p}>
+      <path d="M3 21.5h18M5 21.5V5.5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M15 9.5h2.5a1.5 1.5 0 0 1 1.5 1.5v10.5M8.5 7.5h3M8.5 11h3M8.5 14.5h3M10 21.5v-3" />
+    </Base>
+  );
+}
+
+export function IconHome(p: IconProps) {
+  return (
+    <Base {...p}>
+      <path d="M3 10.5 12 3l9 7.5M5 9v11.5h14V9M10 20.5v-6h4v6" />
+    </Base>
+  );
+}
+
 export function IconSearch(p: IconProps) {
   return (
     <Base {...p}>

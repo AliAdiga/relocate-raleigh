@@ -20,6 +20,8 @@
   --color-leaf: #58bf52;
   --color-ember: #ff791a;
   --color-ember-deep: #e8650a;
+  /* Orange that passes contrast as large text on ivory (4.4:1) */
+  --color-ember-ink: #b84e0a;
   --color-violet: #3741b5;
 
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;

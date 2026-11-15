@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useContactModal } from './ContactModalProvider';
 import SearchPalette from './SearchPalette';
 import { DestinationDot } from './ui/BrandLines';
-import { IconClose, IconMenu, IconSearch, LogoMark } from './ui/Icons';
+import { IconArrowRight, IconClose, IconMenu, IconSearch, LogoMark } from './ui/Icons';
 
 type NavLink = { href: string; label: string; hint?: string; section?: string };
 type NavGroup = { id: string; label: string; items: NavLink[] };
@@ -73,6 +73,7 @@ export default function SiteNav() {
   const active = useActiveSection(pathname === '/');
   const closeSearch = useCallback(() => setSearchOpen(false), []);
   const navRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -80,7 +81,17 @@ export default function SiteNav() {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    // Publish the resting header height so the hero can sit underneath the transparent header.
+    // Measured only at the top of the page, so the shrink-on-scroll never shifts the layout.
+    const el = headerRef.current;
+    const ro = new ResizeObserver(() => {
+      if (el && window.scrollY <= 12) document.documentElement.style.setProperty('--header-h', `${Math.round(el.offsetHeight)}px`);
+    });
+    if (el) ro.observe(el);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
   }, []);
 
   // Global shortcuts: Ctrl/⌘+K or "/" opens search; Escape closes menus.
@@ -154,8 +165,13 @@ export default function SiteNav() {
         Skip to content
       </a>
       <header
+        ref={headerRef}
         className={`no-print sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300 ${
-          scrolled || menuOpen ? 'border-line bg-paper/92 backdrop-blur-md' : 'border-transparent bg-paper'
+          scrolled || menuOpen
+            ? 'border-line bg-paper/92 backdrop-blur-md'
+            : pathname === '/'
+              ? 'border-transparent bg-transparent'
+              : 'border-transparent bg-paper'
         }`}
       >
         <nav
@@ -246,6 +262,7 @@ export default function SiteNav() {
             <button type="button" onClick={requestCall} className="btn-ink whitespace-nowrap px-4 py-2.5 text-sm sm:px-5 sm:text-[0.9375rem]">
               <span className="sm:hidden">Contact</span>
               <span className="hidden sm:inline">Request a call</span>
+              <IconArrowRight size={16} className="hidden sm:block" />
             </button>
             <button
               ref={menuButtonRef}

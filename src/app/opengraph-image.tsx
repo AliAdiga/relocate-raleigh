@@ -8,8 +8,8 @@ export const contentType = 'image/png';
 
 /** Link-preview image in the site's brand: the blue-to-peach wash, the Triangle mark and the hero house. */
 export default async function OgImage() {
-  const house = await readFile(path.join(process.cwd(), 'public', 'renders', 'hero-house.png'));
-  const houseSrc = `data:image/png;base64,${house.toString('base64')}`;
+  const house = await readFile(path.join(process.cwd(), 'public', 'media', 'hero', 'hero-home-square.jpg'));
+  const houseSrc = `data:image/jpeg;base64,${house.toString('base64')}`;
 
   return new ImageResponse(
     (
@@ -42,7 +42,7 @@ export default async function OgImage() {
           </div>
         </div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={houseSrc} width={560} height={495} style={{ position: 'absolute', right: -10, bottom: -10 }} alt="" />
+        <img src={houseSrc} width={630} height={630} style={{ position: 'absolute', right: 0, top: 0, objectFit: 'cover' }} alt="" />
       </div>
     ),
     size,
