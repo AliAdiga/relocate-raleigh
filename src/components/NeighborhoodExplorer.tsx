@@ -190,7 +190,7 @@ export default function NeighborhoodExplorer() {
             />
           )}
         </div>
-        <SelectedPanel n={selected} match={matchFor(selected, state)} maxCommute={state.maxCommute} employerName={employer.name} onAsk={() => askAbout(selected)} />
+        <SelectedPanel n={selected} match={matchFor(selected, state)} maxCommute={state.maxCommute} budget={state.budget} employerName={employer.name} onAsk={() => askAbout(selected)} />
       </div>
 
       {/* Accessible list equivalent: every neighborhood as a card, matches first */}
@@ -225,16 +225,20 @@ function Chip({ children }: { children: React.ReactNode }) {
   return <span className="rounded-full bg-sand px-3 py-1 text-sm text-ink">{children}</span>;
 }
 
-function MatchLine({ match, maxCommute }: { match: ReturnType<typeof matchFor>; maxCommute: number }) {
+function MatchLine({ match, maxCommute, budget }: { match: ReturnType<typeof matchFor>; maxCommute: number; budget: number }) {
   if (match.matches)
     return (
-      <p className="flex items-center gap-1.5 text-sm font-medium text-ink">
-        <IconCheck size={16} strokeWidth={2.5} className="text-leaf" /> Within your {maxCommute}-minute limit and budget
+      <p className="flex items-start gap-1.5 text-sm font-medium text-ink">
+        <IconCheck size={16} strokeWidth={2.5} className="mt-0.5 shrink-0 text-leaf" />
+        <span>
+          Within your {maxCommute}-minute limit{budget > 0 ? '; the price range overlaps your budget' : ''}
+        </span>
       </p>
     );
   return (
     <p className="text-sm text-ink-soft">
-      Outside your filters: {[!match.commuteOk && 'longer drive', !match.budgetOk && 'over budget'].filter(Boolean).join(', ')}
+      Outside your filters:{' '}
+      {[!match.commuteOk && 'longer drive', !match.budgetOk && 'price range starts above your budget'].filter(Boolean).join(', ')}
     </p>
   );
 }
@@ -243,12 +247,14 @@ function SelectedPanel({
   n,
   match,
   maxCommute,
+  budget,
   employerName,
   onAsk,
 }: {
   n: RankedNeighborhood;
   match: ReturnType<typeof matchFor>;
   maxCommute: number;
+  budget: number;
   employerName: string;
   onAsk: () => void;
 }) {
@@ -269,7 +275,7 @@ function SelectedPanel({
           </h3>
           <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-soft">{n.character}</p>
         </div>
-        <MatchLine match={match} maxCommute={maxCommute} />
+        <MatchLine match={match} maxCommute={maxCommute} budget={budget} />
         <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
           <div>
             <dt className="text-ink-soft">4-bedroom homes</dt>

@@ -10,7 +10,7 @@ const STAGES: { key: 'work' | 'home' | 'life'; label: string; title: string; bod
     label: 'Work',
     title: 'Start from where you’ll work',
     body: 'Most Triangle tech jobs cluster around RTP, Durham, Morrisville and downtown Raleigh. Your office (or how often you go in) shapes everything else.',
-    photo: 'durham-american-tobacco',
+    photo: 'raleigh-skyline',
   },
   {
     key: 'home',
@@ -24,7 +24,7 @@ const STAGES: { key: 'work' | 'home' | 'life'; label: string; title: string; bod
     label: 'Everyday life',
     title: 'Check the life around it',
     body: 'Parks, groceries, libraries and the routines that make a place feel like home: weekend trails, a nearby market, a library card.',
-    photo: 'dix-park-sunflowers',
+    photo: 'umstead-trail',
   },
 ];
 
@@ -153,8 +153,9 @@ export default function JourneySection() {
                         width={photo.width}
                         height={photo.height}
                         sizes="(min-width: 1024px) 560px, (min-width: 640px) 45vw, 92vw"
-                        className="aspect-[16/10] h-auto w-full object-cover"
+                        className={`aspect-[16/10] h-auto w-full object-cover ${s.photo === 'raleigh-skyline' ? 'object-[50%_78%]' : ''}`}
                       />
+                      <span className="absolute bottom-2.5 left-2.5 rounded-full bg-paper/90 px-3 py-1 text-xs text-ink-soft">{photo.place}</span>
                     </div>
                     <div>
                       <p className="flex items-center gap-2.5 text-sm font-medium text-ink-soft">
@@ -172,9 +173,9 @@ export default function JourneySection() {
         </div>
 
         <div className="mt-12 flex flex-col items-start gap-4 sm:flex-row sm:items-center lg:mt-4 lg:justify-end">
-          <p className="text-base text-ink-soft">See which neighborhoods fit your commute.</p>
-          <a href="#neighborhoods" className="btn-ink px-7 py-4 text-[0.9375rem]">
-            Open the neighborhood explorer
+          <p className="text-base text-ink-soft">See the places that make up everyday life here.</p>
+          <a href="#everyday" className="btn-ink px-7 py-4 text-[0.9375rem]">
+            Explore everyday resources
           </a>
         </div>
       </div>

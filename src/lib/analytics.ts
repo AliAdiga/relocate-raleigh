@@ -10,6 +10,8 @@ export type AnalyticsEvent =
   | 'neighborhood_saved'
   | 'comparison_opened'
   | 'scouting_planner_started'
+  | 'home_explorer_opened'
+  | 'room_selected'
   | 'guide_signup_completed'
   | 'contact_submitted';
 
