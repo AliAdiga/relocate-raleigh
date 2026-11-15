@@ -16,8 +16,8 @@ export default function HeroActions() {
           <IconArrowRight size={18} />
         </a>
         <a
-          href="#home"
-          onClick={() => trackEvent('hero_cta_clicked', { action: 'explore_home' })}
+          href="#journey"
+          onClick={() => trackEvent('hero_cta_clicked', { action: 'how_it_works' })}
           className="group inline-flex items-center gap-3 text-[0.9375rem] font-medium text-ink"
         >
           <span className="flex h-11 w-11 items-center justify-center rounded-full border border-ink/25 bg-paper/60 transition-colors group-hover:border-ink">
@@ -25,7 +25,7 @@ export default function HeroActions() {
               <path d="M3 1.8v8.4c0 .5.5.8.9.5l6.3-4.2a.6.6 0 0 0 0-1L3.9 1.3c-.4-.3-.9 0-.9.5Z" fill="currentColor" />
             </svg>
           </span>
-          Explore the home
+          See how it works
         </a>
       </div>
       <a

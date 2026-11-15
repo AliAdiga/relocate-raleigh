@@ -111,7 +111,7 @@ export default function JourneySection() {
   }, []);
 
   return (
-    <section aria-labelledby="journey-title" className="section-y bg-sand">
+    <section id="journey" aria-labelledby="journey-title" className="section-y bg-sand">
       <div className="shell">
         <div className="max-w-[720px]" data-reveal>
           <h2 id="journey-title" className="t-section text-ink">
@@ -173,9 +173,9 @@ export default function JourneySection() {
         </div>
 
         <div className="mt-12 flex flex-col items-start gap-4 sm:flex-row sm:items-center lg:mt-4 lg:justify-end">
-          <p className="text-base text-ink-soft">See the places that make up everyday life here.</p>
-          <a href="#everyday" className="btn-ink px-7 py-4 text-[0.9375rem]">
-            Explore everyday resources
+          <p className="text-base text-ink-soft">See which neighborhoods fit your commute.</p>
+          <a href="#neighborhoods" className="btn-ink px-7 py-4 text-[0.9375rem]">
+            Open the neighborhood explorer
           </a>
         </div>
       </div>

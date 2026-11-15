@@ -9,7 +9,6 @@ import Faq, { FAQS } from '@/components/home/Faq';
 import GuideSection from '@/components/home/GuideSection';
 import Hero from '@/components/home/Hero';
 import JourneySection from '@/components/home/JourneySection';
-import ConceptHome from '@/components/home/ConceptHome';
 import NickIntro from '@/components/home/NickIntro';
 import ScoutingPreview from '@/components/home/ScoutingPreview';
 
@@ -41,19 +40,7 @@ export default function Home() {
         <Hero />
         <NickIntro />
 
-        <section id="home" aria-labelledby="home-title" className="section-y">
-          <div className="shell">
-            <div className="mb-10 max-w-[720px]" data-reveal>
-              <h2 id="home-title" className="t-section">
-                Find the space for your next chapter.
-              </h2>
-              <p className="lead mt-4 text-ink-soft">
-                Explore an illustrative home and consider the spaces that matter to your move.
-              </p>
-            </div>
-            <ConceptHome />
-          </div>
-        </section>
+        <JourneySection />
 
         <section id="neighborhoods" aria-labelledby="hoods-title" className="section-y">
           <div className="shell">
@@ -85,7 +72,7 @@ export default function Home() {
           </div>
         </section>
 
-        <JourneySection />
+        <ScoutingPreview />
 
         <section id="everyday" aria-labelledby="everyday-title" className="section-y bg-sand/60">
           {/* Older links pointed at #community */}
@@ -103,7 +90,6 @@ export default function Home() {
           </div>
         </section>
 
-        <ScoutingPreview />
         <NickBio />
         <GuideSection />
         <Faq />
