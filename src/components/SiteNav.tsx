@@ -171,7 +171,7 @@ export default function SiteNav() {
             </span>
           </Link>
 
-          <ul className="hidden items-center gap-1 lg:flex">
+          <ul className="hidden items-center gap-1 xl:flex">
             {NAV.map((entry) =>
               isGroup(entry) ? (
                 <li key={entry.id} className="relative">
@@ -180,7 +180,7 @@ export default function SiteNav() {
                     aria-expanded={openGroup === entry.id}
                     aria-controls={`nav-${entry.id}`}
                     onClick={() => setOpenGroup((g) => (g === entry.id ? null : entry.id))}
-                    className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.9375rem] transition-colors hover:bg-fog ${
+                    className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[0.9375rem] transition-colors hover:bg-fog ${
                       entry.items.some(isCurrent) ? 'font-medium text-ink' : 'text-ink-soft hover:text-ink'
                     }`}
                   >
@@ -221,7 +221,7 @@ export default function SiteNav() {
                   <Link
                     href={entry.href}
                     aria-current={isCurrent(entry) ? 'location' : undefined}
-                    className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[0.9375rem] transition-colors hover:bg-fog ${
+                    className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[0.9375rem] transition-colors hover:bg-fog ${
                       isCurrent(entry) ? 'font-medium text-ink' : 'text-ink-soft hover:text-ink'
                     }`}
                   >
@@ -243,14 +243,14 @@ export default function SiteNav() {
             >
               <IconSearch size={20} />
             </button>
-            <button type="button" onClick={requestCall} className="btn-ink px-4 py-2.5 text-sm sm:px-5 sm:text-[0.9375rem]">
+            <button type="button" onClick={requestCall} className="btn-ink whitespace-nowrap px-4 py-2.5 text-sm sm:px-5 sm:text-[0.9375rem]">
               <span className="sm:hidden">Contact</span>
               <span className="hidden sm:inline">Request a call</span>
             </button>
             <button
               ref={menuButtonRef}
               type="button"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-fog lg:hidden"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-ink hover:bg-fog xl:hidden"
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -262,7 +262,7 @@ export default function SiteNav() {
         </nav>
 
         {menuOpen && (
-          <div id="mobile-menu" ref={menuRef} className="max-h-[calc(100dvh-64px)] overflow-y-auto border-t border-line bg-paper lg:hidden">
+          <div id="mobile-menu" ref={menuRef} className="max-h-[calc(100dvh-64px)] overflow-y-auto border-t border-line bg-paper xl:hidden">
             <div className="shell space-y-6 py-6">
               {NAV.map((entry) =>
                 isGroup(entry) ? (
