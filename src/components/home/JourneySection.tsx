@@ -111,7 +111,7 @@ export default function JourneySection() {
   }, []);
 
   return (
-    <section id="journey" aria-labelledby="journey-title" className="section-y bg-sand">
+    <section id="journey" aria-labelledby="journey-title" className="bp-grid section-y bg-sand">
       <div className="shell">
         <div className="max-w-[720px]" data-reveal>
           <h2 id="journey-title" className="t-section text-ink">

@@ -57,7 +57,7 @@
   }
 
   body {
-    background: var(--color-paper);
+    background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -219,8 +219,46 @@
     color: var(--color-ink-soft);
   }
   .dark-surface {
-    background: var(--color-charcoal);
+    background-color: var(--color-charcoal);
     color: #f3f2ee;
+  }
+
+  /*
+   * Blueprint drafting grid: fine 24px squares with a heavier line every 120px, in blueprint blue.
+   * Kept faint so text contrast is unaffected; the colour comes from --bp-* so dark surfaces can
+   * use white lines. Layers on top of whatever background-color the element already has.
+   */
+  .bp-grid {
+    --bp-major: rgb(46 94 140 / 0.085);
+    --bp-minor: rgb(46 94 140 / 0.04);
+    background-image:
+      linear-gradient(var(--bp-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bp-major) 1px, transparent 1px),
+      linear-gradient(var(--bp-minor) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bp-minor) 1px, transparent 1px);
+    background-size:
+      120px 120px,
+      120px 120px,
+      24px 24px,
+      24px 24px;
+    background-position: -1px -1px;
+  }
+  .dark-surface,
+  .bp-grid-dark {
+    --bp-major: rgb(255 255 255 / 0.055);
+    --bp-minor: rgb(255 255 255 / 0.025);
+  }
+  .dark-surface {
+    background-image:
+      linear-gradient(var(--bp-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bp-major) 1px, transparent 1px),
+      linear-gradient(var(--bp-minor) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bp-minor) 1px, transparent 1px);
+    background-size:
+      120px 120px,
+      120px 120px,
+      24px 24px,
+      24px 24px;
   }
 }
 

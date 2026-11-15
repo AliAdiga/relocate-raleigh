@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { IconArrowRight, IconBuilding, IconCalculator, IconCalendar, IconHome, IconKey, IconMapPin } from '../ui/Icons';
+import { HeroBlueprintBehind, HeroBlueprintMarks } from './HeroBlueprint';
 import HeroActions from './HeroActions';
 import HeroEstimateCard from './HeroEstimateCard';
 import HeroMedia from './HeroMedia';
@@ -24,7 +25,7 @@ const SERVICES = [
 
 export default function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="relative -mt-[var(--header-h,72px)]" style={{ backgroundColor: BG }}>
+    <section aria-labelledby="hero-title" className="bp-grid relative -mt-[var(--header-h,72px)] overflow-x-clip" style={{ backgroundColor: BG }}>
       <div className="shell grid items-center gap-y-6 pb-10 pt-[calc(var(--header-h,72px)+28px)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:gap-x-6 lg:pb-20 lg:pt-[calc(var(--header-h,72px)+48px)]">
         {/* Copy */}
         <div className="relative z-10 max-w-[600px] space-y-6">
@@ -59,10 +60,14 @@ export default function Hero() {
 
         {/* The whole scene, uncropped and modest in size */}
         <div className="relative -mx-5 sm:mx-0 lg:-mt-16">
-          <HeroMedia />
-          <p className="absolute left-[5%] top-[3%] z-10 rounded-full bg-paper/80 px-2.5 py-0.5 text-[0.6875rem] sm:left-[9%] sm:top-[9%] sm:px-3 sm:py-1 sm:text-xs text-ink-soft backdrop-blur">
-            Illustrative model, not a listing
-          </p>
+          <div className="relative">
+            <HeroBlueprintBehind />
+            <HeroMedia />
+            <HeroBlueprintMarks />
+            <p className="absolute left-[5%] top-[3%] z-10 rounded-full bg-paper/80 px-2.5 py-0.5 text-[0.6875rem] sm:bottom-[9%] sm:left-[9%] sm:top-auto sm:px-3 sm:py-1 sm:text-xs text-ink-soft backdrop-blur">
+              Illustrative model, not a listing
+            </p>
+          </div>
           {/* Hangs off the bottom edge over the empty desk, never over the house */}
           <div className="relative z-10 mx-5 mt-1 sm:mx-0 sm:ml-auto sm:max-w-[300px] lg:absolute lg:right-0 lg:top-[90%] lg:mt-0">
             <HeroEstimateCard />
@@ -72,7 +77,7 @@ export default function Hero() {
 
       {/* Dark services bar, like the reference */}
       <div className="shell relative z-20 pb-10">
-        <ul className="grid gap-px overflow-hidden rounded-[var(--radius-panel)] bg-white/10 text-[#f3f2ee] sm:grid-cols-2 lg:grid-cols-4" style={{ backgroundColor: '#1b1b1a' }}>
+        <ul className="bp-grid bp-grid-dark grid gap-px overflow-hidden rounded-[var(--radius-panel)] text-[#f3f2ee] sm:grid-cols-2 lg:grid-cols-4" style={{ backgroundColor: '#1b1b1a' }}>
           {SERVICES.map((s) => (
             <li key={s.title}>
               <Link href={s.href} className="group flex h-full gap-4 p-5 transition-colors hover:bg-white/[0.04] sm:p-6">

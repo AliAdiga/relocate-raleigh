@@ -57,7 +57,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="math" aria-labelledby="math-title" className="section-y bg-fog">
+        <section id="math" aria-labelledby="math-title" className="bp-grid section-y bg-fog">
           <div className="shell">
             <div className="mb-10 max-w-[760px]" data-reveal>
               <h2 id="math-title" className="t-section">
@@ -74,7 +74,7 @@ export default function Home() {
 
         <ScoutingPreview />
 
-        <section id="everyday" aria-labelledby="everyday-title" className="section-y bg-sand/60">
+        <section id="everyday" aria-labelledby="everyday-title" className="bp-grid section-y bg-sand/60">
           {/* Older links pointed at #community */}
           <span id="community" aria-hidden className="block" />
           <div className="shell">

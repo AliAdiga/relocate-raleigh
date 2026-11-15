@@ -21,7 +21,7 @@ const STEPS = [
 
 export default function NickIntro() {
   return (
-    <section aria-labelledby="nick-intro-title" className="border-y border-line bg-sand/60">
+    <section aria-labelledby="nick-intro-title" className="bp-grid border-y border-line bg-sand/60">
       <div className="shell grid gap-12 py-14 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20 lg:py-20">
         <div data-reveal>
           <h2 id="nick-intro-title" className="t-card text-ink">

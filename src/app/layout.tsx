@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${poppins.variable} h-full`}>
-      <body className="flex min-h-full flex-col">
+      <body className="bp-grid flex min-h-full flex-col">
         <MoveProfileProvider>
           <ContactModalProvider>
             {children}
