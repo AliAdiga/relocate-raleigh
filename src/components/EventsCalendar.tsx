@@ -33,7 +33,7 @@ export default function EventsCalendar({ events }: { events: CalendarEvent[] }) 
 
   return (
     <div>
-      <div className="flex flex-wrap gap-3 mb-12">
+      <div className="mb-12 flex flex-wrap gap-2">
         {FILTERS.map((option) => {
           const active = option === filter
           const count =
@@ -47,13 +47,13 @@ export default function EventsCalendar({ events }: { events: CalendarEvent[] }) 
               onClick={() => setFilter(option)}
               className={
                 active
-                  ? 'px-5 py-2.5 rounded-full bg-blue-600 text-white text-sm font-bold transition-all'
-                  : 'px-5 py-2.5 rounded-full bg-zinc-900 text-zinc-400 text-sm font-bold border border-zinc-800 hover:bg-zinc-800 hover:text-white transition-all'
+                  ? 'rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper'
+                  : 'rounded-full bg-fog px-5 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:text-ink'
               }
               aria-pressed={active}
             >
               {option}
-              <span className={active ? 'ml-2 text-blue-200' : 'ml-2 text-zinc-600'}>
+              <span className={active ? 'ml-2 text-paper/70' : 'ml-2 text-stone'}>
                 {count}
               </span>
             </button>
@@ -62,20 +62,20 @@ export default function EventsCalendar({ events }: { events: CalendarEvent[] }) 
       </div>
 
       {groups.length === 0 ? (
-        <div className="py-20 text-center">
-          <p className="text-zinc-500 text-lg font-medium">
+        <div className="rounded-[var(--radius-card)] bg-fog px-6 py-16 text-center">
+          <p className="text-lg text-ink">
             No upcoming {filter === 'All' ? 'events' : `${filter.toLowerCase()} events`} on the
             calendar yet.
           </p>
-          <p className="text-zinc-600 text-sm mt-3">
+          <p className="mt-3 text-sm text-ink-soft">
             The calendar refreshes every Monday. Check back soon.
           </p>
         </div>
       ) : (
-        <div className="space-y-16">
+        <div className="space-y-14">
           {groups.map(([monthKey, monthEvents]) => (
             <section key={monthKey}>
-              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white mb-8">
+              <h2 className="mb-6 text-xl font-semibold tracking-tight">
                 {formatMonthLabel(monthKey)}
               </h2>
               <ul className="space-y-4">
@@ -110,31 +110,28 @@ function EventRow({ event }: { event: CalendarEvent }) {
     <Wrapper
       {...wrapperProps}
       className={
-        'flex flex-col md:flex-row gap-6 p-6 md:p-8 rounded-3xl bg-zinc-900/50 border border-zinc-800/80 transition-all ' +
-        (event.url ? 'hover:bg-zinc-900 hover:border-blue-500/40 cursor-pointer block' : '')
+        'flex flex-col gap-5 rounded-[var(--radius-card)] border border-line bg-paper p-6 transition-colors md:flex-row md:p-7 ' +
+        (event.url ? 'hover:border-[#c9c9c9]' : '')
       }
     >
       <div className="flex md:flex-col items-baseline md:items-center gap-3 md:gap-1 md:w-20 shrink-0">
-        <div className="text-blue-400 text-xs font-black uppercase tracking-[0.2em]">
-          {monthAbbr}
+        <div className="text-sm font-medium capitalize text-ember-deep">
+          {monthAbbr.toLowerCase()}
         </div>
-        <div className="text-white text-4xl md:text-5xl font-black leading-none">{dayNum}</div>
+        <div className="text-[2.375rem] font-semibold leading-none tracking-tight">{dayNum}</div>
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-3 mb-3">
-          <span className="px-3 py-1 bg-blue-500/10 border border-blue-500/30 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-300">
+          <span className="rounded-full bg-fog px-3 py-1 text-xs text-ink">
             {event.category}
           </span>
-          <span className="text-sm text-zinc-500 font-bold">📍 {event.location}</span>
+          <span className="text-sm text-ink-soft">{event.location}</span>
         </div>
-        <h3 className="text-xl md:text-2xl font-black text-white leading-tight mb-3">
+        <h3 className="mb-2 text-lg font-semibold leading-snug tracking-tight">
           {event.title}
-          {event.url && (
-            <span className="inline-block ml-2 text-blue-400 text-base">→</span>
-          )}
         </h3>
-        <p className="text-zinc-400 leading-relaxed font-medium">{event.summary}</p>
+        <p className="leading-relaxed text-ink-soft">{event.summary}</p>
       </div>
     </Wrapper>
   )

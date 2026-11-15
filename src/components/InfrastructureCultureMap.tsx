@@ -80,16 +80,15 @@ function CultureStoresGoogleMap({
 
   if (loadError) {
     return (
-      <div className="flex h-full min-h-[320px] items-center justify-center p-6 text-center text-sm text-zinc-400">
-        Google Maps failed to load. Check billing and that the{' '}
-        <strong className="text-zinc-300">Maps JavaScript API</strong> is enabled.
+      <div className="flex h-full min-h-[320px] items-center justify-center p-6 text-center text-sm text-ink-soft">
+        The map couldn&apos;t load. Check that the Maps JavaScript API is enabled for this key.
       </div>
     );
   }
 
   if (!isLoaded) {
     return (
-      <div className="flex h-full min-h-[320px] items-center justify-center text-sm font-black uppercase tracking-widest text-zinc-500">
+      <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-ink-soft">
         Loading map…
       </div>
     );
@@ -119,7 +118,7 @@ function CultureStoresGoogleMap({
             icon={{
               path: google.maps.SymbolPath.CIRCLE,
               scale: isSel ? 11 : 7,
-              fillColor: isSel ? '#2563eb' : '#52525b',
+              fillColor: isSel ? '#3741B5' : '#9B9B9B',
               fillOpacity: 1,
               strokeColor: '#ffffff',
               strokeWeight: 2,
@@ -132,8 +131,8 @@ function CultureStoresGoogleMap({
           position={{ lat: selectedStore.lat, lng: selectedStore.lng }}
           onCloseClick={onCloseInfo}
         >
-          <div className="max-w-[220px] p-1 text-zinc-900">
-            <p className="text-sm font-black">{selectedStore.name}</p>
+          <div className="max-w-[220px] p-1 text-ink">
+            <p className="text-sm font-semibold">{selectedStore.name}</p>
             <p className="mt-1 text-xs font-medium leading-snug">{selectedStore.address}</p>
           </div>
         </InfoWindow>
@@ -145,7 +144,7 @@ function CultureStoresGoogleMap({
 export default function InfrastructureCultureMap() {
   const [tab, setTab] = useState<CultureTabId>('slavic');
   const stores = CULTURE_STORES[tab];
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(CULTURE_STORES.slavic[0]?.id ?? null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ?? '';
@@ -155,9 +154,10 @@ export default function InfrastructureCultureMap() {
     mapInstanceRef.current = map;
   }, []);
 
-  useEffect(() => {
-    setSelectedId(stores[0]?.id ?? null);
-  }, [tab, stores]);
+  const changeTab = (id: CultureTabId) => {
+    setTab(id);
+    setSelectedId(CULTURE_STORES[id][0]?.id ?? null);
+  };
 
   const focusStore = useCallback((s: CultureStore) => {
     setSelectedId(s.id);
@@ -172,21 +172,8 @@ export default function InfrastructureCultureMap() {
   const selectedStore = stores.find((s) => s.id === selectedId) ?? null;
 
   return (
-    <div className="w-full overflow-hidden rounded-[2.5rem] border border-zinc-800 bg-zinc-900 shadow-2xl ring-1 ring-blue-500/15">
-      <div className="border-b border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-sm md:p-8">
-        <h3 className="mb-2 text-2xl font-black uppercase tracking-tight text-white md:text-3xl">
-          Triangle specialty groceries
-        </h3>
-        <p className="mb-6 text-sm font-medium text-zinc-500">
-          Pick a group to see Triangle-area examples. Click a row or a map pin to focus a store.
-        </p>
-        {!hasMapsKey && (
-          <p className="mb-4 text-xs font-medium text-zinc-500">
-            Add <code className="text-zinc-400">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> to{' '}
-            <code className="text-zinc-400">.env.local</code> with the{' '}
-            <strong className="text-zinc-400">Maps JavaScript API</strong> enabled to show the live map.
-          </p>
-        )}
+    <div className="overflow-hidden rounded-[var(--radius-panel)] border border-line bg-paper">
+      <div className="flex flex-col gap-4 border-b border-line p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div className="flex flex-wrap gap-2" role="tablist" aria-label="Store groups">
           {CULTURE_TABS.map((t) => (
             <button
@@ -194,75 +181,48 @@ export default function InfrastructureCultureMap() {
               type="button"
               role="tab"
               aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
-              className={`rounded-xl border px-4 py-2.5 text-xs font-black uppercase tracking-tight transition-all ${
-                tab === t.id
-                  ? 'border-blue-500 bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                  : 'border-zinc-700 bg-zinc-800 text-zinc-400 hover:border-zinc-600'
+              onClick={() => changeTab(t.id)}
+              className={`rounded-full px-5 py-2.5 text-sm font-medium transition-colors ${
+                tab === t.id ? 'bg-ink text-paper' : 'bg-fog text-ink-soft hover:text-ink'
               }`}
             >
               {TAB_SHORT[t.id]}
             </button>
           ))}
         </div>
-        {tabMeta && (
-          <p className="mt-4 text-sm leading-relaxed text-zinc-400">{tabMeta.blurb}</p>
-        )}
+        {tabMeta && <p className="max-w-md text-sm leading-relaxed text-ink-soft">{tabMeta.blurb}</p>}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:items-stretch">
-        <div className="border-b border-zinc-800 p-4 md:p-6 lg:border-b-0 lg:border-r">
-          <div className="overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-950/80">
-            <table className="w-full min-w-[280px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-zinc-800 text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                  <th className="px-4 py-3">Store</th>
-                  <th className="hidden px-4 py-3 sm:table-cell">Address</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stores.map((s) => {
-                  const active = s.id === selectedId;
-                  return (
-                    <tr
-                      key={s.id}
-                      tabIndex={0}
-                      onClick={() => focusStore(s)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          focusStore(s);
-                        }
-                      }}
-                      className={`cursor-pointer border-b border-zinc-800/80 transition-colors last:border-b-0 ${
-                        active ? 'bg-blue-600/15 ring-1 ring-inset ring-blue-500/40' : 'hover:bg-zinc-900'
-                      }`}
-                    >
-                      <td className="px-4 py-3 font-bold text-white">{s.name}</td>
-                      <td className="hidden max-w-[220px] px-4 py-3 text-xs font-medium text-zinc-500 sm:table-cell">
-                        {s.address}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-3 text-[10px] font-medium uppercase tracking-wider text-zinc-600">
-            Pins are approximate — confirm hours and addresses before visiting.
-          </p>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="border-b border-line p-3 sm:p-4 lg:border-b-0 lg:border-r">
+          <ul className="max-h-[440px] space-y-1 overflow-y-auto" aria-label={`${tabMeta?.label ?? ''} stores`}>
+            {stores.map((s) => {
+              const active = s.id === selectedId;
+              return (
+                <li key={s.id}>
+                  <button
+                    type="button"
+                    onClick={() => focusStore(s)}
+                    aria-pressed={active}
+                    className={`w-full rounded-xl px-4 py-3 text-left transition-colors ${
+                      active ? 'bg-fog' : 'hover:bg-fog/60'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2 font-medium text-ink">
+                      <span className={`h-2 w-2 shrink-0 rounded-full ${active ? 'bg-violet' : 'bg-line'}`} aria-hidden />
+                      {s.name}
+                    </span>
+                    <span className="mt-0.5 block pl-4 text-sm text-ink-soft">{s.address}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-3 px-4 text-xs text-stone">Pins are approximate. Check hours and addresses before you go.</p>
         </div>
 
-        <div className="min-h-[min(380px,50vh)] bg-black lg:min-h-[420px]">
-          {!hasMapsKey && (
-            <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-3 p-8 text-center">
-              <p className="text-sm font-bold text-zinc-400">Map preview unavailable</p>
-              <p className="max-w-sm text-xs text-zinc-600">
-                Configure a Google Maps API key to plot these locations. The list on the left still works.
-              </p>
-            </div>
-          )}
-          {hasMapsKey && (
+        <div className="min-h-[360px] bg-fog lg:min-h-[480px]">
+          {hasMapsKey ? (
             <CultureStoresGoogleMap
               apiKey={apiKey}
               stores={stores}
@@ -273,15 +233,28 @@ export default function InfrastructureCultureMap() {
               onSelectStore={focusStore}
               onCloseInfo={() => setSelectedId(null)}
             />
+          ) : (
+            <div className="flex h-full min-h-[360px] flex-col items-center justify-center gap-3 p-8 text-center">
+              {selectedStore ? (
+                <>
+                  <p className="text-xl font-semibold tracking-tight">{selectedStore.name}</p>
+                  <p className="max-w-sm text-ink-soft">{selectedStore.address}</p>
+                  <a
+                    className="btn-outline mt-2 px-6 py-3 text-sm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${selectedStore.name} ${selectedStore.address}`)}`}
+                  >
+                    Open in Google Maps
+                  </a>
+                </>
+              ) : (
+                <p className="text-ink-soft">Choose a store to see where it is.</p>
+              )}
+            </div>
           )}
         </div>
       </div>
-
-      {hasMapsKey && (
-        <p className="border-t border-zinc-800 bg-zinc-950 px-4 py-2 text-center text-[10px] text-zinc-500">
-          Map data © Google
-        </p>
-      )}
     </div>
   );
 }

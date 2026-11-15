@@ -7,14 +7,17 @@ import {
   type FormState,
 } from '@/lib/actions'
 import type { ModalVariant } from './ContactModalProvider'
+import { IconCheck, IconClose } from './ui/Icons'
 
 const initialState: FormState = { ok: false }
 
 export default function ContactModal({
   variant,
+  defaultMessage,
   onClose,
 }: {
   variant: ModalVariant
+  defaultMessage?: string
   onClose: () => void
 }) {
   const action = variant === 'guide' ? submitGuideRequest : submitContactMessage
@@ -32,51 +35,51 @@ export default function ContactModal({
     }
   }, [onClose])
 
-  const title = variant === 'guide' ? 'Get the Relocation Guide' : 'Get In Touch with Nick'
+  const title = variant === 'guide' ? 'Get the relocation guide' : 'Talk to Nick'
   const subtitle =
     variant === 'guide'
-      ? "We'll email you the PDF. No spam — unsubscribe anytime."
+      ? "We'll email you the PDF. No spam, and you can unsubscribe anytime."
       : "Tell Nick a bit about what you're planning. He'll reply within a day or two."
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/40 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="contact-modal-title"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl p-8 shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[var(--radius-panel)] bg-paper p-6 shadow-[0_30px_80px_-30px_rgba(31,31,31,0.5)] sm:p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-6 gap-6">
           <div>
-            <h3 id="contact-modal-title" className="text-2xl font-black text-white tracking-tight">
+            <h3 id="contact-modal-title" className="text-xl font-semibold tracking-tight text-ink">
               {title}
             </h3>
-            <p className="text-sm text-zinc-500 mt-2 font-medium">{subtitle}</p>
+            <p className="mt-2 text-sm text-ink-soft">{subtitle}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-zinc-500 hover:text-white transition-colors text-xl shrink-0"
+            className="-mr-2 -mt-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-fog hover:text-ink"
             aria-label="Close"
           >
-            ✕
+            <IconClose size={20} />
           </button>
         </div>
 
         {state.ok ? (
           <div className="py-10 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-3xl">
-              ✓
+            <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-leaf text-paper">
+              <IconCheck size={28} strokeWidth={2.5} />
             </div>
-            <p className="text-white font-bold text-lg mb-2">Got it.</p>
-            <p className="text-zinc-500 text-sm mb-8">{state.message}</p>
+            <p className="mb-2 text-lg font-semibold text-ink">Got it.</p>
+            <p className="mb-8 text-sm text-ink-soft">{state.message}</p>
             <button
               onClick={onClose}
-              className="px-8 py-3 bg-white text-black rounded-full font-bold hover:bg-zinc-200 transition-all"
+              className="btn-outline px-8 py-3"
             >
               Close
             </button>
@@ -121,14 +124,15 @@ export default function ContactModal({
                   label="Message"
                   name="message"
                   required
-                  rows={5}
+                  rows={defaultMessage ? 8 : 5}
+                  defaultValue={defaultMessage}
                   errors={state.fieldErrors?.message}
                 />
               </>
             )}
 
             {state.message && !state.ok && (
-              <p className="text-red-400 text-sm font-medium" aria-live="polite">
+              <p className="text-sm font-medium text-[#b42318]" aria-live="polite">
                 {state.message}
               </p>
             )}
@@ -136,7 +140,7 @@ export default function ContactModal({
             <button
               type="submit"
               disabled={pending}
-              className="w-full px-8 py-4 bg-blue-600 text-white rounded-full font-black hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="btn-ink w-full px-8 py-4 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending
                 ? 'Sending...'
@@ -145,13 +149,13 @@ export default function ContactModal({
                   : 'Send message'}
             </button>
             {variant !== 'guide' && (
-              <p className="pt-2 text-center text-sm font-medium text-zinc-500">
-                Or call Nick by phone number{' '}
+              <p className="pt-2 text-center text-sm text-ink-soft">
+                Or call Nick at{' '}
                 <a
                   href="tel:+13477579850"
-                  className="font-bold text-blue-400 underline-offset-2 hover:text-blue-300 hover:underline"
+                  className="font-semibold text-ink underline underline-offset-4"
                 >
-                  +13477579850
+                  (347) 757-9850
                 </a>
               </p>
             )}
@@ -162,8 +166,7 @@ export default function ContactModal({
   )
 }
 
-const fieldClass =
-  'w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors'
+const fieldClass = 'field'
 
 function Field({
   label,
@@ -182,7 +185,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">
+      <span className="mb-2 block text-sm font-medium text-ink">
         {label}
       </span>
       <input
@@ -192,7 +195,7 @@ function Field({
         placeholder={placeholder}
         className={fieldClass}
       />
-      {errors?.[0] && <span className="block text-red-400 text-xs mt-1.5">{errors[0]}</span>}
+      {errors?.[0] && <span className="mt-1.5 block text-xs text-[#b42318]">{errors[0]}</span>}
     </label>
   )
 }
@@ -202,21 +205,23 @@ function TextareaField({
   name,
   required,
   rows,
+  defaultValue,
   errors,
 }: {
   label: string
   name: string
   required?: boolean
   rows?: number
+  defaultValue?: string
   errors?: string[]
 }) {
   return (
     <label className="block">
-      <span className="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">
+      <span className="mb-2 block text-sm font-medium text-ink">
         {label}
       </span>
-      <textarea name={name} required={required} rows={rows} className={fieldClass} />
-      {errors?.[0] && <span className="block text-red-400 text-xs mt-1.5">{errors[0]}</span>}
+      <textarea name={name} required={required} rows={rows} defaultValue={defaultValue} className={fieldClass} />
+      {errors?.[0] && <span className="mt-1.5 block text-xs text-[#b42318]">{errors[0]}</span>}
     </label>
   )
 }
@@ -232,7 +237,7 @@ function SelectField({
 }) {
   return (
     <label className="block">
-      <span className="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">
+      <span className="mb-2 block text-sm font-medium text-ink">
         {label}
       </span>
       <select name={name} defaultValue="" className={fieldClass}>

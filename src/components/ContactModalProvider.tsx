@@ -4,9 +4,10 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 import ContactModal from './ContactModal'
 
 export type ModalVariant = 'guide' | 'contact'
+export type ModalOptions = { message?: string }
 
 type Ctx = {
-  open: (variant: ModalVariant) => void
+  open: (variant: ModalVariant, options?: ModalOptions) => void
   close: () => void
 }
 
@@ -19,17 +20,23 @@ export function useContactModal() {
 }
 
 export default function ContactModalProvider({ children }: { children: ReactNode }) {
-  const [variant, setVariant] = useState<ModalVariant | null>(null)
+  const [state, setState] = useState<{ variant: ModalVariant; options: ModalOptions } | null>(null)
 
   return (
     <ModalCtx.Provider
       value={{
-        open: (v) => setVariant(v),
-        close: () => setVariant(null),
+        open: (variant, options = {}) => setState({ variant, options }),
+        close: () => setState(null),
       }}
     >
       {children}
-      {variant && <ContactModal variant={variant} onClose={() => setVariant(null)} />}
+      {state && (
+        <ContactModal
+          variant={state.variant}
+          defaultMessage={state.options.message}
+          onClose={() => setState(null)}
+        />
+      )}
     </ModalCtx.Provider>
   )
 }

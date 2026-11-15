@@ -1,105 +1,50 @@
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { ImageResponse } from 'next/og';
 
-// Route segment config
-export const runtime = 'edge';
-
-// Image metadata
-export const alt = 'Relocate Raleigh | The Tech Relocation Guide';
-export const size = {
-  width: 1200,
-  height: 630,
-};
-
+export const alt = 'Relocate Raleigh: keep your tech career, upgrade your life';
+export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-export default function OgImage() {
+/** Link-preview image in the site's brand: the blue-to-peach wash, the Triangle mark and the hero house. */
+export default async function OgImage() {
+  const house = await readFile(path.join(process.cwd(), 'public', 'renders', 'hero-house.png'));
+  const houseSrc = `data:image/png;base64,${house.toString('base64')}`;
+
   return new ImageResponse(
     (
       <div
         style={{
-          height: '100%',
           width: '100%',
+          height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#000',
           position: 'relative',
+          background: 'linear-gradient(100deg, #C4DFE8 0%, #E9E3D8 52%, #FCDABD 100%)',
+          color: '#1F1F1F',
+          fontFamily: 'sans-serif',
         }}
       >
-        <div 
-          style={{
-            position: 'absolute',
-            top: -100,
-            right: -100,
-            width: 400,
-            height: 400,
-            background: 'rgba(37, 99, 235, 0.2)',
-            borderRadius: '100%',
-            filter: 'blur(50px)',
-          }}
-        />
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-          <div
-            style={{
-              width: 100,
-              height: 100,
-              backgroundColor: '#2563eb',
-              borderRadius: 24,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: 64,
-              fontWeight: 900,
-              marginBottom: 32,
-            }}
-          >
-            R
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '64px 0 64px 72px', width: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <svg width="56" height="56" viewBox="0 0 32 32">
+              <path d="M16 6.5 5.5 24.5h21L16 6.5Z" fill="none" stroke="#1F1F1F" strokeWidth="2.4" strokeLinejoin="round" />
+              <circle cx="16" cy="6.5" r="3.4" fill="#1F1F1F" />
+              <circle cx="5.5" cy="24.5" r="3.4" fill="#1F1F1F" />
+              <circle cx="26.5" cy="24.5" r="3.9" fill="#FF791A" stroke="#FEFEFF" strokeWidth="1.6" />
+            </svg>
+            <div style={{ fontSize: 34, fontWeight: 700 }}>Relocate Raleigh</div>
           </div>
-          
-          <div
-            style={{
-              fontSize: 72,
-              fontWeight: 900,
-              color: 'white',
-              marginBottom: 16,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12
-            }}
-          >
-            Relocate <span style={{ color: '#2563eb' }}>Raleigh</span>
+          <div style={{ marginTop: 70, fontSize: 76, fontWeight: 700, lineHeight: 1.02, letterSpacing: -2 }}>
+            Keep your career. Upgrade your life.
           </div>
-
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 600,
-              color: '#71717a',
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Keep your career. · Upgrade your life.
+          <div style={{ marginTop: 28, fontSize: 28, lineHeight: 1.4, color: '#3d3d3d', width: 500 }}>
+            Salaries, neighborhoods and commutes for tech families moving to Raleigh-Durham.
           </div>
         </div>
-
-        <div 
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 8,
-            backgroundColor: '#2563eb',
-          }}
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={houseSrc} width={560} height={495} style={{ position: 'absolute', right: -10, bottom: -10 }} alt="" />
       </div>
     ),
-    {
-      ...size,
-    }
+    size,
   );
 }

@@ -1,102 +1,160 @@
-/* Styling for the Relocate Raleigh PDF guide.
- * Applied by md-to-pdf via the --stylesheet flag.
- * Targets Letter format with 20mm margins.
+/* Styling for the Relocate Raleigh PDF guide, in the site's brand
+ * (see /styleguide): Poppins, ink text, mist-to-peach wash, violet accent, orange Raleigh dot.
+ * Applied by md-to-pdf via the --stylesheet flag. Letter format, 20mm margins.
  */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
 :root {
-  --text: #1a1a1a;
-  --muted: #555;
-  --accent: #1d4ed8;
-  --rule: #e5e7eb;
-  --code-bg: #f4f4f5;
-  --table-header: #f4f4f5;
+  --ink: #1f1f1f;
+  --ink-soft: #545454;
+  --stone: #6e6e6e;
+  --line: #e7e7e7;
+  --fog: #f6f6f4;
+  --mist: #c4dfe8;
+  --peach: #fcdabd;
+  --violet: #3741b5;
+  --ember: #ff791a;
+  --ember-deep: #e8650a;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  font-size: 10.5pt;
-  line-height: 1.55;
-  color: var(--text);
+  font-family: "Poppins", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.65;
+  color: var(--ink);
   max-width: none;
 }
 
+/* Cover: the brand wash with the Triangle mark (drawn in CSS so the PDF needs no image assets). */
 h1 {
-  font-size: 28pt;
-  line-height: 1.15;
+  position: relative;
+  font-size: 34pt;
+  font-weight: 600;
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  margin-top: 0;
-  margin-bottom: 0.25em;
-  page-break-after: avoid;
+  margin: 0;
+  padding: 120px 36px 20px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(100deg, var(--mist), #e9e3d8 52%, var(--peach));
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+h1::before {
+  content: "";
+  position: absolute;
+  left: 32px;
+  top: 32px;
+  width: 40px;
+  height: 40px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M16 6.5 5.5 24.5h21L16 6.5Z' fill='none' stroke='%231F1F1F' stroke-width='2.4' stroke-linejoin='round'/><circle cx='16' cy='6.5' r='3.4' fill='%231F1F1F'/><circle cx='5.5' cy='24.5' r='3.4' fill='%231F1F1F'/><circle cx='26.5' cy='24.5' r='3.9' fill='%23FF791A' stroke='%23FEFEFF' stroke-width='1.6'/></svg>") no-repeat center / contain;
+}
+h1::after {
+  content: "Relocate Raleigh";
+  position: absolute;
+  left: 82px;
+  top: 40px;
+  font-size: 13pt;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+h1 + p {
+  margin: 0 0 1.5em;
+  padding: 0 36px 32px;
+  border-radius: 0 0 18px 18px;
+  background: linear-gradient(100deg, var(--mist), #e9e3d8 52%, var(--peach));
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 13pt;
+  color: var(--ink);
+}
+h1 + p strong {
+  font-weight: 500;
 }
 
+/* Chapters start on a new page; the cover and front matter flow. */
 h2 {
-  font-size: 18pt;
+  font-size: 20pt;
+  font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  margin-top: 2em;
-  margin-bottom: 0.5em;
-  padding-bottom: 0.25em;
-  border-bottom: 2px solid var(--accent);
+  margin: 1.8em 0 0.6em;
+  padding-bottom: 0.3em;
+  border-bottom: 2px solid var(--ink);
   page-break-after: avoid;
+}
+h2[id^="chapter"],
+h2[id^="appendix"],
+h2[id^="next-steps"] {
+  page-break-before: always;
+  margin-top: 0;
 }
 
 h3 {
   font-size: 13pt;
-  margin-top: 1.4em;
-  margin-bottom: 0.4em;
-  color: var(--text);
+  font-weight: 600;
+  margin: 1.5em 0 0.4em;
   page-break-after: avoid;
 }
 
 h4 {
   font-size: 11pt;
-  margin-top: 1em;
-  margin-bottom: 0.3em;
+  font-weight: 600;
+  margin: 1em 0 0.3em;
 }
 
 p {
   margin: 0.6em 0;
 }
 
-ul, ol {
+ul,
+ol {
   margin: 0.5em 0;
-  padding-left: 1.4em;
+  padding-left: 1.3em;
 }
-
 li {
-  margin: 0.25em 0;
+  margin: 0.3em 0;
+}
+li::marker {
+  color: var(--ember-deep);
 }
 
 a {
-  color: var(--accent);
+  color: var(--violet);
   text-decoration: none;
-  border-bottom: 1px dotted var(--accent);
+  border-bottom: 1px solid rgba(55, 65, 181, 0.35);
+}
+
+strong {
+  font-weight: 600;
 }
 
 blockquote {
-  margin: 1em 0;
-  padding: 0.6em 1em;
-  border-left: 3px solid var(--accent);
-  background: #f8fafc;
-  color: var(--muted);
-  font-size: 10pt;
+  margin: 1.2em 0;
+  padding: 0.8em 1.1em;
+  border: 0;
+  border-radius: 12px;
+  background: var(--fog);
+  color: var(--ink-soft);
+  font-size: 9.5pt;
+  page-break-inside: avoid;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
-
 blockquote p {
   margin: 0.3em 0;
 }
 
 code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-family: Consolas, "Liberation Mono", monospace;
   font-size: 0.9em;
-  background: var(--code-bg);
+  background: var(--fog);
   padding: 0.1em 0.35em;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 hr {
   border: 0;
-  border-top: 1px solid var(--rule);
+  border-top: 1px solid var(--line);
   margin: 2em 0;
 }
 
@@ -104,51 +162,45 @@ table {
   border-collapse: collapse;
   width: 100%;
   margin: 1em 0;
-  font-size: 9.5pt;
+  font-size: 9pt;
   page-break-inside: avoid;
 }
-
-th, td {
-  border: 1px solid var(--rule);
-  padding: 6px 10px;
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 7px 10px;
   text-align: left;
   vertical-align: top;
 }
-
 th {
-  background: var(--table-header);
   font-weight: 600;
+  border-bottom: 2px solid var(--ink);
+}
+tr:nth-child(even) td {
+  background: #fafaf8;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
 }
 
-strong {
-  font-weight: 600;
-}
-
-/* Table of Contents styling — make the nav feel distinct */
+/* Table of contents */
 h2 + ol {
   list-style: none;
   padding-left: 0;
   counter-reset: toc;
 }
-
 h2 + ol > li {
   counter-increment: toc;
-  padding: 0.4em 0;
-  border-bottom: 1px dotted var(--rule);
+  padding: 0.5em 0;
+  border-bottom: 1px solid var(--line);
 }
-
 h2 + ol > li::before {
-  content: "Chapter " counter(toc) " — ";
-  color: var(--muted);
+  content: counter(toc, decimal-leading-zero) "  ";
+  color: var(--ember-deep);
   font-weight: 600;
 }
 
-/* Keep headings with their content where possible */
-h2, h3, h4 {
+h2,
+h3,
+h4 {
   page-break-after: avoid;
-}
-
-/* Don't split tables or blockquotes across pages if avoidable */
-blockquote {
-  page-break-inside: avoid;
 }

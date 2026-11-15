@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { Resend } from 'resend'
 import { z } from 'zod'
+import { guideEmailHtml } from './guideEmail'
 
 const DEST = 'team@relocateraleigh.com'
 const FROM = 'Relocate Raleigh <team@relocateraleigh.com>'
@@ -20,7 +21,7 @@ async function loadGuidePdf(): Promise<Buffer | null> {
 }
 
 const guideSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().max(100).optional(),
   email: z.email('Please enter a valid email'),
   origin: z.string().max(100).optional(),
 })
@@ -52,7 +53,7 @@ export async function submitGuideRequest(
   formData: FormData,
 ): Promise<FormState> {
   const parsed = guideSchema.safeParse({
-    name: formData.get('name'),
+    name: formData.get('name') || undefined,
     email: formData.get('email'),
     origin: formData.get('origin') || undefined,
   })
@@ -65,17 +66,17 @@ export async function submitGuideRequest(
   }
 
   const { name, email, origin } = parsed.data
-  const resend = getClient()
   const pdfBuffer = await loadGuidePdf()
 
   try {
+    const resend = getClient()
     await resend.emails.send({
       from: FROM,
       to: DEST,
       replyTo: email,
-      subject: `New guide request: ${name}`,
+      subject: `New guide request: ${name ?? email}`,
       text: [
-        `Name: ${name}`,
+        name ? `Name: ${name}` : null,
         `Email: ${email}`,
         origin ? `Moving from: ${origin}` : null,
       ]
@@ -87,9 +88,10 @@ export async function submitGuideRequest(
       from: FROM,
       to: email,
       replyTo: DEST,
-      subject: 'Your Relocate Raleigh Guide',
+      subject: 'Your Relocate Raleigh guide',
+      html: guideEmailHtml({ name, hasPdf: Boolean(pdfBuffer) }),
       text:
-        `Hi ${name},\n\n` +
+        `Hi ${name ?? 'there'},\n\n` +
         (pdfBuffer
           ? `Your Relocate Raleigh Guide is attached as a PDF — 8 chapters plus checklists, written by a local who made the move himself.\n\n`
           : `Thanks for requesting the Relocate Raleigh Guide. We'll email the PDF shortly.\n\n`) +
@@ -139,9 +141,8 @@ export async function submitContactMessage(
   }
 
   const { name, email, message, timeline } = parsed.data
-  const resend = getClient()
-
   try {
+    const resend = getClient()
     await resend.emails.send({
       from: FROM,
       to: DEST,

@@ -1,25 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import ContactModalProvider from "@/components/ContactModalProvider";
+import MoveProfileProvider from "@/components/MoveProfileProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const description =
+  "Keep your tech career. Upgrade your life. Compare salaries, neighborhoods and commutes, then plan your move to Raleigh-Durham with a local who made it himself.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://relocateraleigh.com'),
-  title: "Relocate Raleigh | The Tech Relocation Guide",
-  description: "Keep your tech career. Upgrade your life. A local insider's guide to Raleigh-Durham for West Coast tech families.",
+  metadataBase: new URL("https://relocateraleigh.com"),
+  title: "Relocate Raleigh | Move your tech career to the Triangle",
+  description,
   openGraph: {
-    title: "Relocate Raleigh | The Tech Relocation Guide",
-    description: "Keep your tech career. Upgrade your life. A local insider's guide to Raleigh-Durham for West Coast tech families.",
+    title: "Relocate Raleigh | Move your tech career to the Triangle",
+    description,
     url: "https://relocateraleigh.com",
     siteName: "Relocate Raleigh",
     locale: "en_US",
@@ -27,8 +28,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Relocate Raleigh | The Tech Relocation Guide",
-    description: "Keep your tech career. Upgrade your life. A local insider's guide to Raleigh-Durham for West Coast tech families.",
+    title: "Relocate Raleigh | Move your tech career to the Triangle",
+    description,
   },
 };
 
@@ -38,12 +39,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        <ContactModalProvider>{children}</ContactModalProvider>
+    <html lang="en" className={`${poppins.variable} h-full`}>
+      <body className="flex min-h-full flex-col">
+        <ContactModalProvider>
+          <MoveProfileProvider>{children}</MoveProfileProvider>
+        </ContactModalProvider>
       </body>
     </html>
   );

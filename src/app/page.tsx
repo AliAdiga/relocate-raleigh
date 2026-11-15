@@ -1,255 +1,236 @@
 import Image from "next/image";
+import HeroHouse from "@/components/HeroHouse";
+import HeroMovePicker from "@/components/HeroMovePicker";
 import Link from "next/link";
 import Calculator from "@/components/Calculator";
-import NickBio from "@/components/NickBio";
-import CommuteMap from "@/components/CommuteMap";
+import NeighborhoodExplorer from "@/components/NeighborhoodExplorer";
 import InfrastructureCultureMap from "@/components/InfrastructureCultureMap";
+import NickBio from "@/components/NickBio";
 import ModalTriggerButton from "@/components/ModalTriggerButton";
+import GuideEmailForm from "@/components/GuideEmailForm";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
+import { IconCalculator, IconKey, IconMapPin, IconCalendar, IconCheck, IconMessages, IconPhone } from "@/components/ui/Icons";
 import { getUpcomingEvents, formatDateLabel } from "@/data/events";
+
+const TRUST = [
+  { icon: IconCheck, color: "text-leaf", title: "Licensed NC Realtor®", body: "Buying, renting and selling" },
+  { icon: IconCalculator, color: "text-violet", title: "Works in RTP tech", body: "Knows your commute and career" },
+  { icon: IconMessages, color: "text-ember", title: "4 languages", body: "English, Russian, Ukrainian, Mandarin" },
+  { icon: IconPhone, color: "text-ink", title: "Free first call", body: "No pressure, no obligation" },
+];
+
+const STEPS = [
+  {
+    icon: IconCalculator,
+    color: "text-leaf",
+    title: "Run your numbers",
+    body: "Compare your salary, state taxes and home prices with Raleigh. It takes under a minute.",
+    href: "#math",
+    cta: "Open the calculator",
+  },
+  {
+    icon: IconMapPin,
+    color: "text-ember",
+    title: "Shortlist neighborhoods",
+    body: "Pick where you'll work and see which neighborhoods fit your commute, budget and schools.",
+    href: "#neighborhoods",
+    cta: "Explore neighborhoods",
+  },
+  {
+    icon: IconKey,
+    color: "text-violet",
+    title: "Plan the move with Nick",
+    body: "Book a free call. Nick helps you scout, buy or rent, and settle in once you arrive.",
+    href: "#about",
+    cta: "Meet Nick",
+  },
+];
 
 export default function Home() {
   const upcomingEvents = getUpcomingEvents(3);
+
   return (
-    <div className="min-h-screen bg-black font-sans text-zinc-50 selection:bg-blue-500/30">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 border-b border-zinc-900 bg-black/80 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-blue-500/20">R</div>
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">Relocate Raleigh</span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-sm font-bold text-zinc-500">
-          <a href="#calculator" className="hover:text-white transition-colors">The Math</a>
-          <a href="#community" className="hover:text-white transition-colors">Community</a>
-          <a href="#infrastructure" className="hover:text-white transition-colors">Infrastructure</a>
-          <a href="#guide" className="hover:text-white transition-colors">About us</a>
-          <ModalTriggerButton
-            variant="guide"
-            className="bg-white text-black px-6 py-2.5 rounded-full hover:bg-zinc-200 transition-all font-bold"
-          >
-            Get The Guide
-          </ModalTriggerButton>
-        </div>
-      </nav>
+    <>
+      <SiteNav />
 
-      {/* Hero Section */}
-      <header className="px-6 py-24 md:py-40 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
-        <div className="flex-1 space-y-8 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-[0.2em]">
-            <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
-            West Coast Tech Pipeline
-          </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tight leading-[0.9] text-white">
-            Keep Your <br />
-            <span className="text-blue-600">Career.</span> <br />
-            Upgrade <br />
-            Your Life.
-          </h1>
-          <p className="text-xl text-zinc-500 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-            Raleigh-Durham offers top-tier hybrid roles, half the cost of living, and the best public schools in the South. Let a local tech-insider help you navigate the move.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-6 pt-4">
-            <ModalTriggerButton
-              variant="guide"
-              className="w-full sm:w-auto px-10 py-5 bg-blue-600 text-white rounded-full font-black text-lg hover:bg-blue-700 transition-all shadow-2xl shadow-blue-500/20"
-            >
-              Relocation Guide (PDF)
-            </ModalTriggerButton>
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-12 h-12 rounded-full border-4 border-black bg-zinc-800 overflow-hidden shadow-xl">
-                    <Image src={`https://i.pravatar.cc/150?u=${i}`} alt="User" width={48} height={48} />
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm font-bold text-zinc-500 tracking-tight">
-                Joined by <span className="text-white">120+</span> tech families
+      <main className="flex-1">
+        {/* Hero: the Figma's gradient panel with the house breaking out of its frame */}
+        <section className="px-3 pt-4 sm:px-[30px] sm:pt-6" aria-labelledby="hero-title">
+          <div className="wash relative mx-auto grid max-w-[1380px] rounded-[var(--radius-panel)] lg:min-h-[640px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+            <div className="relative z-10 flex flex-col justify-center gap-7 px-6 pb-4 pt-12 sm:px-12 lg:py-20 lg:pl-[46px] lg:pr-0">
+              <p className="text-[0.9375rem] text-ink">For tech families moving to Raleigh-Durham</p>
+              <h1 id="hero-title" className="max-w-[560px] text-[clamp(2.75rem,6.4vw,4.1875rem)] font-semibold leading-[1.04] tracking-[-0.02em]">
+                Keep your career. Upgrade your life.
+              </h1>
+              <p className="max-w-[460px] text-base leading-relaxed text-ink">
+                The Triangle has hybrid tech jobs, lower housing costs and strong public schools. Nick works in RTP
+                tech and made the move himself. He&apos;ll help your family do it right.
+              </p>
+              <HeroMovePicker />
+              <div className="space-y-2">
+                <GuideEmailForm source="Homepage hero" />
+                <p className="pl-5 text-xs text-ink-soft">Free relocation guide: 8 chapters plus checklists, emailed as a PDF.</p>
               </div>
             </div>
-          </div>
-        </div>
-        <div id="calculator" className="flex-1 w-full max-w-2xl lg:max-w-none flex justify-center lg:justify-end">
-          <Calculator />
-        </div>
-      </header>
 
-      {/* Community fit — inclusive, equal professional service */}
-      <section id="community" className="bg-zinc-950 py-32 px-6 border-y border-zinc-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-3xl mb-12">
-            <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight text-white leading-tight">
-              Finding the Right Fit <br />
-              for Your Family
-            </h2>
-            <p className="text-xl text-zinc-500 leading-relaxed font-medium">
-              Moving is hard. Moving with a family is harder. We help you weigh what matters—not only the home, but schools, commute, and the community around it.
-            </p>
+            <HeroHouse />
           </div>
-          <div className="max-w-4xl p-10 md:p-12 bg-zinc-900/50 rounded-[2.5rem] border border-zinc-800/50">
-            <div className="space-y-6 text-zinc-400 text-lg leading-relaxed font-medium">
-              <p>
-                Every household is different. In our work together, we focus on{" "}
-                <span className="text-zinc-300">your</span> stated priorities—whether that includes schools, commute, faith communities, cultural connections, or access to services and amenities that support how your family lives day to day. We provide the same professional service to every client, guided by what you tell us you need.
-              </p>
-              <p>
-                Complimentary consultations include a structured conversation about your goals and practical, objective information about the Triangle—so you can compare areas, understand what is near each option, and choose a location that balances convenience and quality of life for your situation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section id="how-we-help" className="border-y border-zinc-900 bg-black py-32 px-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-16 max-w-3xl">
-            <h2 className="mb-6 text-4xl font-black leading-tight tracking-tight text-white md:text-5xl">
-              How we can help you
-            </h2>
-            <p className="text-xl font-medium leading-relaxed text-zinc-500">
-              From housing to community—practical support for your Triangle relocation.
-            </p>
-          </div>
-          <ul className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {[
-              {
-                title: 'Find your ideal home',
-                body: 'We help you find a house for rent or purchase in the area most suitable for you and your family.',
-              },
-              {
-                title: 'Mortgage assistance',
-                body: 'We connect you with the best mortgage brokers in the area.',
-              },
-              {
-                title: 'Organize moving logistics',
-                body: 'We manage the details of your move to ensure a smooth transition.',
-              },
-              {
-                title: 'Expert local guidance',
-                body: 'We answer your questions regarding neighborhoods, schools, career opportunities, and more.',
-              },
-              {
-                title: 'Community connection',
-                body: 'We connect you to desired communities and provide information about various business and community events.',
-              },
-              {
-                title: 'Property management',
-                body: 'If you own a property, we can manage it for you—including coordinating repairs and regular inspections.',
-              },
-            ].map((item) => (
-              <li
-                key={item.title}
-                className="rounded-[2rem] border border-zinc-800/80 bg-zinc-900/40 p-8 transition-colors hover:border-blue-500/25"
-              >
-                <div className="mb-4 flex items-center gap-3">
-                  <span className="h-2 w-2 shrink-0 rounded-full bg-blue-500" aria-hidden />
-                  <h3 className="text-lg font-black tracking-tight text-white md:text-xl">{item.title}</h3>
-                </div>
-                <p className="text-base font-medium leading-relaxed text-zinc-400">{item.body}</p>
+          {/* Trust strip: verifiable facts only (add real client reviews here once Nick has them) */}
+          <ul className="mx-auto mt-16 grid max-w-[1380px] grid-cols-2 gap-x-6 gap-y-5 px-3 sm:px-[46px] lg:mt-20 lg:grid-cols-4">
+            {TRUST.map((t) => (
+              <li key={t.title} className="flex items-start gap-3">
+                <t.icon size={26} className={`mt-0.5 shrink-0 ${t.color}`} />
+                <span>
+                  <span className="block text-[0.9375rem] font-semibold text-ink">{t.title}</span>
+                  <span className="block text-sm text-ink-soft">{t.body}</span>
+                </span>
               </li>
             ))}
           </ul>
-        </div>
-      </section>
+        </section>
 
-      {/* Infrastructure: commute tool first, then specialty grocers */}
-      <section
-        id="infrastructure"
-        className="scroll-mt-24 py-32 px-6 max-w-7xl mx-auto space-y-20"
-      >
-        <div className="space-y-10">
-          <div className="max-w-3xl space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-              Commute vs. neighborhood cost
+        {/* Three steps */}
+        <section className="mx-auto max-w-[1380px] px-6 pb-24 pt-28 sm:px-[30px] lg:pt-36" aria-labelledby="steps-title">
+          <h2 id="steps-title" className="mx-auto max-w-[800px] text-center text-[clamp(2rem,4vw,3.125rem)] font-semibold leading-[1.1] tracking-[-0.015em]">
+            Three steps from curious to moved in
+          </h2>
+          <ol className="mt-16 grid gap-12 md:grid-cols-3 md:gap-10 lg:px-9">
+            {STEPS.map((s) => (
+              <li key={s.title} className="flex flex-col gap-4">
+                <s.icon size={64} strokeWidth={1.2} className={s.color} />
+                <h3 className="text-xl font-semibold tracking-tight">{s.title}</h3>
+                <p className="max-w-[330px] text-base leading-relaxed text-ink-soft">{s.body}</p>
+                <a href={s.href} className="w-fit text-[0.9375rem] font-medium text-ink underline decoration-line decoration-2 underline-offset-[6px] hover:decoration-ink">
+                  {s.cta}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* The math */}
+        <section id="math" className="mx-auto max-w-[1380px] px-3 py-16 sm:px-[30px]" aria-labelledby="math-title">
+          <div className="mb-10 max-w-[720px] px-3 sm:px-0">
+            <h2 id="math-title" className="text-[clamp(2rem,4vw,3.125rem)] font-semibold leading-[1.1] tracking-[-0.015em]">
+              What your salary is worth in Raleigh
             </h2>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">
-              Major Triangle tech employers · illustrative drive times
-            </p>
-            <p className="text-xl text-zinc-500 leading-relaxed font-medium">
-              Choose one of fifteen large tech campuses around RTP, Raleigh, Durham, Cary, or Morrisville. The map
-              recenters on that employer; blue pins show example neighborhoods whose rough drive-time estimate falls
-              under your max commute slider. Median home prices and school notes are simplified—use them as a
-              conversation starter, not a quote.
+            <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+              Enter your pay and your state. We compare cost of living, state income tax and home prices, so you
+              can see what the move means before you talk to anyone.
             </p>
           </div>
-          <div id="commute-tool" className="scroll-mt-8">
-            <CommuteMap />
-          </div>
-        </div>
+          <Calculator />
+        </section>
 
-        <div className="space-y-10 border-t border-zinc-800 pt-20">
-          <div className="max-w-3xl space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-              The &quot;Hidden&quot; Infrastructure
+        {/* Neighborhoods */}
+        <section id="neighborhoods" className="mx-auto max-w-[1380px] px-3 py-20 sm:px-[30px]" aria-labelledby="hoods-title">
+          <div className="mb-10 max-w-[720px] px-3 sm:px-0">
+            <h2 id="hoods-title" className="text-[clamp(2rem,4vw,3.125rem)] font-semibold leading-[1.1] tracking-[-0.015em]">
+              Find neighborhoods that fit your commute
             </h2>
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-blue-400">
-              Specialty grocers · Slavic, Asian, Indian, American
-            </p>
-            <p className="text-xl text-zinc-500 leading-relaxed font-medium">
-              Use the tabs below to browse example Triangle stores by community and click a row or map pin for
-              details. Pins are approximate; confirm addresses before you visit.
+            <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+              Choose one of 15 Triangle tech employers and set the longest drive you&apos;ll put up with. Prices
+              and school ratings are simplified starting points. Nick fills in the details on a call.
             </p>
           </div>
-          <div id="infrastructure-grocers" className="scroll-mt-8">
-            <InfrastructureCultureMap />
-          </div>
-        </div>
-      </section>
+          <NeighborhoodExplorer />
+        </section>
 
-      {/* Events Section */}
-      <section className="bg-blue-600 py-32 px-6 text-white overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-[120px] -mr-48 -mt-48"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-            <div className="text-left max-w-2xl">
-              <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">Upcoming Events</h2>
-              <p className="text-blue-100 text-xl font-medium leading-relaxed">
-                Our AI-curated calendar finds the most relevant cultural and tech events in the Triangle.
+        {/* Community */}
+        <section id="community" className="mx-auto max-w-[1380px] px-3 py-20 sm:px-[30px]" aria-labelledby="community-title">
+          <div className="mb-10 max-w-[720px] px-3 sm:px-0">
+            <h2 id="community-title" className="text-[clamp(2rem,4vw,3.125rem)] font-semibold leading-[1.1] tracking-[-0.015em]">
+              The groceries that make it feel like home
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+              Slavic, Asian, Indian and American specialty stores across the Triangle. Pick a community, then
+              choose a store to see it on the map.
+            </p>
+          </div>
+          <InfrastructureCultureMap />
+        </section>
+
+        {/* Events */}
+        <section className="mx-auto max-w-[1380px] px-3 py-20 sm:px-[30px]" aria-labelledby="events-title">
+          <div className="mb-10 flex flex-col justify-between gap-6 px-3 sm:flex-row sm:items-end sm:px-0">
+            <div className="max-w-[640px]">
+              <h2 id="events-title" className="text-[clamp(2rem,4vw,3.125rem)] font-semibold leading-[1.1] tracking-[-0.015em]">
+                Meet people before you move
+              </h2>
+              <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+                Tech meetups, cultural festivals and family events around the Triangle, updated every week.
               </p>
             </div>
-            <Link href="/events" className="px-10 py-5 bg-white text-blue-600 rounded-full font-black text-lg hover:bg-blue-50 transition-all shadow-xl shadow-black/10 whitespace-nowrap">
-              View Full Calendar
+            <Link href="/events" className="btn-outline w-fit shrink-0 px-7 py-3.5 text-[0.9375rem]">
+              See the full calendar
             </Link>
           </div>
 
           {upcomingEvents.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <ul className="grid gap-5 md:grid-cols-3">
               {upcomingEvents.map((event) => (
-                <a
-                  key={`${event.date}-${event.title}`}
-                  href={event.url ?? undefined}
-                  target={event.url ? "_blank" : undefined}
-                  rel={event.url ? "noopener noreferrer" : undefined}
-                  className="p-8 bg-white/10 rounded-3xl border border-white/20 backdrop-blur-md hover:bg-white/20 transition-all cursor-pointer block"
-                >
-                  <div className="text-blue-200 text-xs font-black mb-3 uppercase tracking-[0.2em]">{formatDateLabel(event.date)}</div>
-                  <h4 className="text-2xl font-black mb-6 leading-tight">{event.title}</h4>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-blue-100 font-bold tracking-tight">📍 {event.location}</span>
-                    <span className="px-3 py-1 bg-white/20 rounded-lg text-[10px] font-black uppercase tracking-widest">{event.category}</span>
-                  </div>
-                </a>
+                <li key={`${event.date}-${event.title}`}>
+                  <a
+                    href={event.url ?? undefined}
+                    target={event.url ? "_blank" : undefined}
+                    rel={event.url ? "noopener noreferrer" : undefined}
+                    className="flex h-full flex-col gap-4 rounded-[var(--radius-card)] border border-line bg-paper p-6 hover:border-[#c9c9c9]"
+                  >
+                    <span className="text-sm font-medium text-ember-deep">{formatDateLabel(event.date)}</span>
+                    <span className="text-lg font-semibold leading-snug tracking-tight">{event.title}</span>
+                    <span className="mt-auto flex items-center justify-between gap-3 text-sm text-ink-soft">
+                      <span>{event.location}</span>
+                      <span className="rounded-full bg-fog px-3 py-1 text-xs text-ink">{event.category}</span>
+                    </span>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
-            <p className="text-blue-100 text-lg font-medium">
-              The calendar refreshes weekly — check back Monday for the next set of events.
-            </p>
+            <div className="flex flex-col items-start gap-4 rounded-[var(--radius-card)] bg-fog p-8 sm:flex-row sm:items-center">
+              <IconCalendar size={40} className="shrink-0 text-violet" />
+              <p className="flex-1 text-base text-ink-soft">
+                No events are listed right now. Get the guide and Nick will send you the best upcoming meetups
+                for your family.
+              </p>
+              <ModalTriggerButton variant="guide" className="btn-ink shrink-0 px-6 py-3.5 text-[0.9375rem]">
+                Get the guide
+              </ModalTriggerButton>
+            </div>
           )}
-        </div>
-      </section>
+        </section>
 
-      <NickBio />
+        <NickBio />
 
-      {/* Footer */}
-      <footer className="py-16 px-6 bg-black border-t border-zinc-900 text-center">
-        <div className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center text-white font-black text-xs">R</div>
-          <span className="text-lg font-black tracking-tight text-white">Relocate Raleigh</span>
-        </div>
-        <p className="text-sm text-zinc-600 font-medium">
-          © {new Date().getFullYear()} Relocate Raleigh. Built for the community, by the community.
-        </p>
-      </footer>
-    </div>
+        {/* Guide CTA: the Figma's newsletter panel */}
+        <section className="px-3 pb-24 pt-16 sm:px-[30px]" aria-labelledby="guide-title">
+          <div className="wash relative mx-auto grid max-w-[1380px] items-center gap-8 rounded-[var(--radius-panel)] px-6 py-12 sm:px-12 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:min-h-[457px]">
+            <div className="space-y-6">
+              <h2 id="guide-title" className="text-[clamp(2rem,4vw,3.125rem)] font-semibold leading-[1.1] tracking-[-0.015em]">
+                Get the Relocate Raleigh guide
+              </h2>
+              <p className="max-w-[520px] text-base leading-relaxed text-ink">
+                Neighborhoods, Wake County schools, the real cost of the move, a 3-day scouting plan and your
+                first 90 days, all in one PDF. Free, and written for families like yours.
+              </p>
+              <GuideEmailForm source="Homepage guide panel" />
+            </div>
+            <div className="flex justify-center md:justify-end">
+              <Image
+                src="/renders/house-isometric.png"
+                alt=""
+                width={244}
+                height={224}
+                className="h-auto w-[200px] sm:w-[244px]"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
+    </>
   );
 }
