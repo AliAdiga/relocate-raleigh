@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import SketchBackdrop from '../ui/SketchBackdrop';
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { PHOTOS, type PhotoKey } from '@/data/photos';
 
@@ -111,7 +112,8 @@ export default function JourneySection() {
   }, []);
 
   return (
-    <section id="journey" aria-labelledby="journey-title" className="bp-grid section-y bg-sand">
+    <section id="journey" aria-labelledby="journey-title" className="bp-grid section-y relative isolate overflow-hidden bg-sand">
+      <SketchBackdrop sketch="street" fade="soft" className="-right-[3%] top-2 hidden w-[46%] max-w-[720px] md:block" opacity={0.42} sizes="46vw" />
       <div className="shell">
         <div className="max-w-[720px]" data-reveal>
           <h2 id="journey-title" className="t-section text-ink">

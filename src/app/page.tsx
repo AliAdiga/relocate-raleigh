@@ -11,6 +11,7 @@ import Hero from '@/components/home/Hero';
 import JourneySection from '@/components/home/JourneySection';
 import NickIntro from '@/components/home/NickIntro';
 import ScoutingPreview from '@/components/home/ScoutingPreview';
+import SketchBackdrop from '@/components/ui/SketchBackdrop';
 
 export default function Home() {
   // Only facts the business has published: name, URL, phone, email, service area. No ratings or address.
@@ -42,7 +43,8 @@ export default function Home() {
 
         <JourneySection />
 
-        <section id="neighborhoods" aria-labelledby="hoods-title" className="section-y">
+        <section id="neighborhoods" aria-labelledby="hoods-title" className="section-y relative isolate overflow-hidden">
+          <SketchBackdrop sketch="aerial" fade="soft" className="-right-[4%] top-4 hidden w-[44%] max-w-[700px] md:block" opacity={0.42} sizes="44vw" />
           <div className="shell">
             <div className="mb-10 max-w-[760px]" data-reveal>
               <h2 id="hoods-title" className="t-section">
@@ -74,7 +76,8 @@ export default function Home() {
 
         <ScoutingPreview />
 
-        <section id="everyday" aria-labelledby="everyday-title" className="bp-grid section-y bg-sand/60">
+        <section id="everyday" aria-labelledby="everyday-title" className="bp-grid section-y relative isolate overflow-hidden bg-sand/60">
+          <SketchBackdrop sketch="skyline" fade="soft" className="-right-[3%] top-6 hidden w-[52%] max-w-[820px] md:block" opacity={0.36} sizes="52vw" />
           {/* Older links pointed at #community */}
           <span id="community" aria-hidden className="block" />
           <div className="shell">

@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import ModalTriggerButton from './ModalTriggerButton';
 import { TriangleOutline } from './ui/BrandLines';
+import SketchBackdrop from './ui/SketchBackdrop';
 
 /** The dark consultation invitation that closes every main page, flowing into the dark footer. */
 export default function ClosingCta({ title = 'Let’s find your place in the Triangle.' }: { title?: string }) {
   return (
-    <section aria-labelledby="closing-title" className="no-print dark-surface relative overflow-hidden">
+    <section aria-labelledby="closing-title" className="no-print dark-surface relative isolate overflow-hidden">
+      <SketchBackdrop sketch="skyline" fade="bottom" tone="dark" className="-bottom-6 right-0 w-[160%] max-w-none sm:w-[110%] lg:w-[78%]" opacity={0.2} sizes="80vw" />
       <TriangleOutline
         className="pointer-events-none absolute -right-24 -top-10 w-[720px] max-w-none sm:-right-10 lg:right-[6%]"
         stroke="#ffffff"
