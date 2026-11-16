@@ -8,6 +8,7 @@ import EverydayLife from '@/components/home/EverydayLife';
 import Faq, { FAQS } from '@/components/home/Faq';
 import GuideSection from '@/components/home/GuideSection';
 import Hero from '@/components/home/Hero';
+import HomePerspective from '@/components/home/HomePerspective';
 import JourneySection from '@/components/home/JourneySection';
 import NickIntro from '@/components/home/NickIntro';
 import ScoutingPreview from '@/components/home/ScoutingPreview';
@@ -58,6 +59,8 @@ export default function Home() {
             <NeighborhoodExplorer />
           </div>
         </section>
+
+        <HomePerspective />
 
         <section id="math" aria-labelledby="math-title" className="bp-grid section-y relative isolate overflow-hidden bg-fog">
           <SketchBackdrop sketch="blueprintBuilding" fade="soft" className="right-[2%] -top-16 hidden w-[30%] max-w-[440px] md:block" opacity={0.45} sizes="30vw" />

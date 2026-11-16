@@ -67,6 +67,25 @@ export function IconArrowRight(p: IconProps) {
   );
 }
 
+/** Floor plan: an L-shaped outline with interior walls and a door gap */
+export function IconFloorPlan(p: IconProps) {
+  return (
+    <Base {...p}>
+      <path d="M3.5 3.5h17v17h-9v-6h-8v-11Z" />
+      <path d="M11.5 3.5v5.5M11.5 12v2.5M15.5 9h5" />
+    </Base>
+  );
+}
+
+export function IconSun(p: IconProps) {
+  return (
+    <Base {...p}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" />
+    </Base>
+  );
+}
+
 export function IconArrowDown(p: IconProps) {
   return (
     <Base {...p}>

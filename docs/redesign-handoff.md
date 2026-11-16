@@ -29,6 +29,11 @@ and hold the last frame with a "Replay animation" control; they pause offscreen 
 motion and Save-Data. The navigation is transparent over the hero at the top of the homepage and turns solid
 on scroll; its height is published as `--header-h` so the hero sits underneath it.
 
+Static showcase ("A different perspective on home", between the neighborhood explorer and the calculator):
+`public/media/showcase/concept-cutaway.webp` is the owner-approved concept cutaway, trimmed of empty margin only
+(1296x914 from the 2000x1116 original, building and drawings untouched). The untouched original is kept at
+`content/source-art/concept-cutaway-original.jpg`. It is captioned as a concept visualization, not a listing.
+
 Section backdrops (`public/media/sketches/`, placed by `src/components/ui/SketchBackdrop.tsx`):
 - `ref-tower-sketch-top.webp` (neighborhoods), `ref-blueprint-building.webp` (calculator),
   `ref-looking-up.webp` (journey, edges only) and `ref-city-haze.webp` (everyday life) come from reference
