@@ -44,7 +44,7 @@ export default function Home() {
         <JourneySection />
 
         <section id="neighborhoods" aria-labelledby="hoods-title" className="section-y relative isolate overflow-hidden">
-          <SketchBackdrop sketch="aerial" fade="soft" className="-right-[4%] top-4 hidden w-[44%] max-w-[700px] md:block" opacity={0.42} sizes="44vw" />
+          <SketchBackdrop sketch="tower" fade="soft" className="right-[2%] -top-6 hidden w-[30%] max-w-[420px] md:block" opacity={0.5} sizes="30vw" />
           <div className="shell">
             <div className="mb-10 max-w-[760px]" data-reveal>
               <h2 id="hoods-title" className="t-section">
@@ -59,7 +59,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="math" aria-labelledby="math-title" className="bp-grid section-y bg-fog">
+        <section id="math" aria-labelledby="math-title" className="bp-grid section-y relative isolate overflow-hidden bg-fog">
+          <SketchBackdrop sketch="blueprintBuilding" fade="soft" className="right-[2%] -top-16 hidden w-[30%] max-w-[440px] md:block" opacity={0.45} sizes="30vw" />
           <div className="shell">
             <div className="mb-10 max-w-[760px]" data-reveal>
               <h2 id="math-title" className="t-section">
@@ -77,7 +78,7 @@ export default function Home() {
         <ScoutingPreview />
 
         <section id="everyday" aria-labelledby="everyday-title" className="bp-grid section-y relative isolate overflow-hidden bg-sand/60">
-          <SketchBackdrop sketch="skyline" fade="soft" className="-right-[3%] top-6 hidden w-[52%] max-w-[820px] md:block" opacity={0.36} sizes="52vw" />
+          <SketchBackdrop sketch="cityHaze" fade="soft" className="right-[1%] -top-28 hidden w-[30%] max-w-[440px] md:block" opacity={0.55} sizes="30vw" />
           {/* Older links pointed at #community */}
           <span id="community" aria-hidden className="block" />
           <div className="shell">

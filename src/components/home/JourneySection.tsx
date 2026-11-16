@@ -113,7 +113,7 @@ export default function JourneySection() {
 
   return (
     <section id="journey" aria-labelledby="journey-title" className="bp-grid section-y relative isolate overflow-hidden bg-sand">
-      <SketchBackdrop sketch="street" fade="soft" className="-right-[3%] top-2 hidden w-[46%] max-w-[720px] md:block" opacity={0.42} sizes="46vw" />
+      <SketchBackdrop sketch="lookingUp" fade="edges" fit="cover" className="inset-0" opacity={0.15} sizes="100vw" />
       <div className="shell">
         <div className="max-w-[720px]" data-reveal>
           <h2 id="journey-title" className="t-section text-ink">

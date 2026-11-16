@@ -29,12 +29,14 @@ and hold the last frame with a "Replay animation" control; they pause offscreen 
 motion and Save-Data. The navigation is transparent over the hero at the top of the homepage and turns solid
 on scroll; its height is published as `--header-h` so the hero sits underneath it.
 
-Section backdrops: `public/media/sketches/` holds three generated pencil sketches (a city skyline, a street
-of homes, an aerial neighborhood), made with the Z-Image Turbo model and converted to greyscale WebP. They are
-decorative and illustrative (not a real skyline or listing). `src/components/ui/SketchBackdrop.tsx` places them
-beside section headings and fades them into the page; on the dark closing section they are inverted to read as
-chalk lines. Replace them with Google Flow versions by keeping the same file names. The whole page also carries
-a faint blueprint grid (`.bp-grid` in `globals.css`).
+Section backdrops (`public/media/sketches/`, placed by `src/components/ui/SketchBackdrop.tsx`):
+- `ref-tower-sketch-top.webp` (neighborhoods), `ref-blueprint-building.webp` (calculator),
+  `ref-looking-up.webp` (journey, edges only) and `ref-city-haze.webp` (everyday life) come from reference
+  images supplied by the site owner. **Their source and licence are unconfirmed: confirm the right to use them
+  commercially, or replace them with generated or licensed art (same file names), before publishing.**
+- `sketch-skyline.webp` (dark closing section, inverted to chalk lines) was generated with Z-Image Turbo.
+All are decorative and illustrative, not Raleigh or a real listing. The page also carries a faint blueprint
+grid (`.bp-grid` in `globals.css`).
 
 The hero stats strip shows site coverage (neighborhoods, employers, states), not client counts: replace or
 add numbers only when Nick can verify them.
