@@ -55,9 +55,26 @@ function Diagram({ stage, compact = false }: { stage: number; compact?: boolean 
     const [x, y] = P[k];
     const below = k !== 'life';
     return (
-      <g key={k} style={{ opacity: on ? 1 : 0.18, transition: 'opacity 0.45s ease' }}>
-        <circle cx={x} cy={y} r={destination ? 15 : 12} fill={destination && on ? '#FF791A' : '#1F1F1F'} stroke="#F4EFE7" strokeWidth="5" />
-        <text x={x} y={below ? y + 40 : y - 28} textAnchor="middle" fontSize={compact ? 22 : 17} fontWeight={600} fill="#1F1F1F">
+      <g key={k}>
+        {/* The node builds in as you scroll; the label stays readable (stone #6E6E6E ≈ 4.6:1 on sand) */}
+        <circle
+          cx={x}
+          cy={y}
+          r={destination ? 15 : 12}
+          fill={destination && on ? '#FF791A' : '#1F1F1F'}
+          stroke="#F4EFE7"
+          strokeWidth="5"
+          style={{ opacity: on ? 1 : 0.22, transition: 'opacity 0.45s ease' }}
+        />
+        <text
+          x={x}
+          y={below ? y + 40 : y - 28}
+          textAnchor="middle"
+          fontSize={compact ? 22 : 17}
+          fontWeight={600}
+          fill={on ? '#1F1F1F' : '#6E6E6E'}
+          style={{ transition: 'fill 0.45s ease' }}
+        >
           {label}
         </text>
       </g>
@@ -112,8 +129,9 @@ export default function JourneySection() {
   }, []);
 
   return (
-    <section id="journey" aria-labelledby="journey-title" className="bp-grid section-y relative isolate overflow-hidden bg-sand">
-      <SketchBackdrop sketch="lookingUp" fade="edges" fit="cover" className="inset-0" opacity={0.15} sizes="100vw" />
+    <section id="journey" aria-labelledby="journey-title" className="bp-grid bp-grid-soft section-y relative isolate overflow-hidden bg-sand">
+      {/* Kept very faint so the diagram, labels and photos stay the focus */}
+      <SketchBackdrop sketch="lookingUp" fade="edges" fit="cover" className="inset-0" opacity={0.05} sizes="100vw" />
       <div className="shell">
         <div className="max-w-[720px]" data-reveal>
           <h2 id="journey-title" className="t-section text-ink">

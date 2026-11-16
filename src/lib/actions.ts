@@ -88,6 +88,33 @@ export async function submitGuideRequest(_prev: FormState, formData: FormData): 
   const { name, email, origin } = parsed.data
   const pdfBuffer = await loadGuidePdf()
 
+  const notifyTeam = () =>
+    send(resend, {
+      from: FROM,
+      to: DEST,
+      replyTo: email,
+      subject: pdfBuffer ? `New guide request: ${name ?? email}` : `ACTION NEEDED: email the guide PDF to ${email}`,
+      text: [
+        pdfBuffer ? null : 'The guide PDF was missing on the server, so it was NOT attached. Please reply with it.',
+        name ? `Name: ${name}` : null,
+        `Email: ${email}`,
+        origin ? `Context: ${origin}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+    })
+
+  // Without the PDF, the team email is how the guide gets sent by hand. It must go out first, so the
+  // visitor is never told "the team has been asked" unless that request actually reached the team.
+  if (!pdfBuffer) {
+    try {
+      await notifyTeam()
+    } catch (err) {
+      console.error('Guide team notification failed (no PDF):', err)
+      return fail('We couldn’t send the guide right now. Please write to team@relocateraleigh.com and we’ll send it.')
+    }
+  }
+
   try {
     await send(resend, {
       from: FROM,
@@ -99,7 +126,7 @@ export async function submitGuideRequest(_prev: FormState, formData: FormData): 
         `Hi ${name ?? 'there'},\n\n` +
         (pdfBuffer
           ? 'Your Relocate Raleigh guide is attached as a PDF: 8 chapters plus checklists, written by a local who made the move himself.\n\n'
-          : 'Thanks for requesting the Relocate Raleigh guide. We will email the PDF shortly.\n\n') +
+          : 'Thanks for requesting the Relocate Raleigh guide. The team has been asked to email you the PDF.\n\n') +
         'Reply to this email with any questions about the move. We read every response.\n\nThe Relocate Raleigh team',
       ...(pdfBuffer ? { attachments: [{ filename: GUIDE_PDF_FILENAME, content: pdfBuffer }] } : {}),
     })
@@ -108,22 +135,20 @@ export async function submitGuideRequest(_prev: FormState, formData: FormData): 
     return fail('We couldn’t send the guide. Check the address and try again, or write to team@relocateraleigh.com.')
   }
 
-  // The visitor already has their guide; a failed team notification shouldn't turn that into an error.
-  try {
-    await send(resend, {
-      from: FROM,
-      to: DEST,
-      replyTo: email,
-      subject: `New guide request: ${name ?? email}`,
-      text: [name ? `Name: ${name}` : null, `Email: ${email}`, origin ? `Context: ${origin}` : null].filter(Boolean).join('\n'),
-    })
-  } catch (err) {
-    console.error('Guide team notification failed:', err)
+  // With the PDF attached the visitor already has their guide, so a failed team notification is only logged.
+  if (pdfBuffer) {
+    try {
+      await notifyTeam()
+    } catch (err) {
+      console.error('Guide team notification failed:', err)
+    }
   }
 
   return {
     ok: true,
-    message: pdfBuffer ? `Sent. Check ${email} for the guide.` : `Sent. Check ${email} for a confirmation.`,
+    message: pdfBuffer
+      ? `Sent. Check ${email} for the guide.`
+      : `Request received. Check ${email} for a confirmation; the team will send the PDF.`,
   }
 }
 

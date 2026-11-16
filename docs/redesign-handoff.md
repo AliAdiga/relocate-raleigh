@@ -71,6 +71,20 @@ add numbers only when Nick can verify them.
 - **Email (Resend)**: set `RESEND_API_KEY` in Vercel. Without it, both forms show an honest failure
   message with the phone number. The code now checks Resend's `{ error }` result, so a failed send is
   never reported as success. Successful delivery could not be tested without the key.
+  - **Status (Nov 16, 2026):** the Vercel project has **no environment variables**, so the live forms
+    cannot deliver yet. Both send from `team@relocateraleigh.com`, so that domain must also be verified
+    in Resend (SPF/DKIM records) or Resend will reject the sends.
+  - Contact requests go to `team@relocateraleigh.com`. Guide requests email the visitor
+    `content/relocation-guide.pdf` as an attachment and notify the team. If the PDF were ever missing,
+    the team is emailed "ACTION NEEDED" first and the visitor is only told the team will send it if that
+    email went through.
+  - **Manual test after setting the key** (use your own inbox, not a real lead):
+    1. Open a preview deployment, click "Request a call", send your own name and email, and confirm the
+       message arrives at team@relocateraleigh.com with your address as reply-to.
+    2. Enter your own email in "Get the free relocation guide" and confirm the email arrives with the
+       PDF attached and opens; confirm the team notification also arrives.
+    3. Try an invalid email and an empty name: inline errors appear and nothing is sent.
+    4. Check Resend → Emails for the three messages and no errors.
 - **Google Maps (optional)**: set `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (restricted by referrer) for live
   maps. Without it the explorer shows an SVG map positioned by real latitude/longitude.
 - **Scheduling**: there is no calendar integration, so buttons say "Request a relocation call", not "Book".

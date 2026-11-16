@@ -67,6 +67,14 @@ export function IconArrowRight(p: IconProps) {
   );
 }
 
+export function IconArrowDown(p: IconProps) {
+  return (
+    <Base {...p}>
+      <path d="M6 14.4 12 20.5l6-6.1M12 3.5v16.8" />
+    </Base>
+  );
+}
+
 export function IconArrowLeft(p: IconProps) {
   return (
     <Base {...p}>

@@ -74,8 +74,9 @@ export default function HeroMedia() {
     width: WIDE.width,
     height: WIDE.height,
     sizes: '(min-width: 1024px) 54vw, 100vw',
-    quality: 82,
-    priority: true,
+    // Next 16: `priority` is deprecated; the LCP image loads eagerly at high fetch priority.
+    loading: 'eager',
+    fetchPriority: 'high',
   });
 
   const label = !started ? 'Play animation' : playback === 'ended' ? 'Replay animation' : playback === 'playing' ? 'Pause animation' : 'Play animation';

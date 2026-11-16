@@ -11,7 +11,7 @@ export function guideEmailHtml({ name, hasPdf }: { name?: string; hasPdf: boolea
   const hello = name ? `Hi ${esc(name)},` : 'Hi there,';
   const lead = hasPdf
     ? 'Your Relocate Raleigh guide is attached. It has 8 chapters plus checklists, written by a tech worker who made the move himself.'
-    : "Thanks for requesting the Relocate Raleigh guide. We'll email the PDF shortly.";
+    : 'Thanks for requesting the Relocate Raleigh guide. The team has been asked to email you the PDF.';
 
   const link = (href: string, label: string) =>
     `<a href="${href}" style="color:#1F1F1F;font-weight:600;text-decoration:underline;">${label}</a>`;

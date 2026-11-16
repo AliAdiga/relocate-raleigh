@@ -100,7 +100,7 @@ export default async function NeighborhoodPage({ params }: { params: Promise<{ s
             </div>
             <figure>
               <div className="relative aspect-[4/3] overflow-hidden rounded-[var(--radius-panel)] sm:aspect-[16/10]">
-                <Image src={photo.src} alt={photo.alt} fill priority sizes="(min-width: 1024px) 680px, 92vw" className="object-cover" />
+                <Image src={photo.src} alt={photo.alt} fill loading="eager" fetchPriority="high" sizes="(min-width: 1024px) 680px, 92vw" className="object-cover" />
               </div>
               <figcaption className="mt-2 text-xs text-ink-soft">
                 {photo.place}. Photo: {photo.author}, {photo.license}.
