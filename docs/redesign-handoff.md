@@ -32,8 +32,8 @@ on scroll; its height is published as `--header-h` so the hero sits underneath i
 Section backdrops (`public/media/sketches/`, placed by `src/components/ui/SketchBackdrop.tsx`):
 - `ref-tower-sketch-top.webp` (neighborhoods), `ref-blueprint-building.webp` (calculator),
   `ref-looking-up.webp` (journey, edges only) and `ref-city-haze.webp` (everyday life) come from reference
-  images supplied by the site owner. **Their source and licence are unconfirmed: confirm the right to use them
-  commercially, or replace them with generated or licensed art (same file names), before publishing.**
+  images supplied by the site owner, who confirmed (Nov 16, 2026) that they have the rights to use them on the
+  site. Keep that licence record with the project; replace them under the same file names if it ever lapses.
 - `sketch-skyline.webp` (dark closing section, inverted to chalk lines) was generated with Z-Image Turbo.
 All are decorative and illustrative, not Raleigh or a real listing. The page also carries a faint blueprint
 grid (`.bp-grid` in `globals.css`).

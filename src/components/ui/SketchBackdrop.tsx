@@ -8,7 +8,7 @@ import Image from 'next/image';
  * The parent section needs `relative isolate overflow-hidden`; the sketch sits at z -10 inside
  * that stacking context, above the section background and below its content.
  * Artwork is illustrative, not a depiction of a real listing or of Raleigh. The ref-* images were
- * supplied by the site owner; confirm their licence before publishing.
+ * supplied by the site owner, who confirmed they hold the rights to use them (see docs/redesign-handoff.md).
  */
 const SKETCHES = {
   skyline: { src: '/media/sketches/sketch-skyline.webp', width: 2016, height: 864 },
